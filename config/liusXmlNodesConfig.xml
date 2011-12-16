@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<luceneIndex>
+	<!-- org.apache.lucene.analysis.StopAnalyzer -->
+	<!-- org.apache.lucene.analysis.SimpleAnalyzer-->
+	<!-- org.apache.lucene.analysis.standard.StandardAnalyzer-->
+	<!-- org.apache.lucene.analysis.WhitespaceAnalyzer-->
+	<!-- org.apache.lucene.analysis.fr.FrenchAnalyzer-->
+	<!-- org.apache.lucene.analysis.cjk.CJKAnalyzer-->
+	<!-- org.apache.lucene.analysis.cn.ChineseAnalyzer-->
+	<!-- org.apache.lucene.analysis.cz.CzechAnalyzer-->
+	<!-- org.apache.lucene.analysis.ru.RussianAnalyzer-->
+	<properties>
+		<analyzer class="org.apache.lucene.analysis.standard.StandardAnalyzer" />
+		<!--<stopWord sep=",">le,la,des,une,de,sur,l,dans,par,avec</stopWord>
+		</analyzer>-->
+		<createIndex value="auto"/>
+		<indexWriterProperty mergeFactor="10" maxMergeDocs="20" optimize="true"/>
+	</properties>
+	<index>
+		<xml>
+			<xmlNodes>
+				<node select="//book">
+					<luceneField name="title" xpathSelect="title" type="Text" />
+					<luceneField name="creator" xpathSelect="creator" type="Text" />
+				</node>
+				<node select="//article" setBoost="2.0">
+					<luceneField name="title" xpathSelect="title" type="Text"/>
+					<luceneField name="creator" xpathSelect="creator" type="Text"/>
+					<luceneField name="volume" xpathSelect="volume" type="Text"/>
+				</node>
+			</xmlNodes>
+		</xml>
+	</index>
+	<search>
+		<multiFieldQueryParser>
+			<searchFields sep=",">title,creator</searchFields>
+		</multiFieldQueryParser>
+	</search>
+	<searchResult>
+		<fieldsToDisplay>
+			<luceneField name="title" label="Titre"/>
+			<luceneField name="creator" label="Auteur"/>
+		</fieldsToDisplay>
+	</searchResult>
+</luceneIndex>
