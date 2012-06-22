@@ -1,5 +1,6 @@
 package org.bireme.dia.analysis;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,11 +10,13 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.search.Hits;
 
 public class DeCSEngine implements SynonymEngine {
-    RAMDirectory directory;
+    private RAMDirectory ramDir;
     IndexSearcher searcher;
     HashMap map = new HashMap();
     
@@ -25,16 +28,19 @@ public class DeCSEngine implements SynonymEngine {
         
         this.addCategory = category;
         this.addSyn = syn;
+        File indexDir = new File(indexPath);
         
         try{
-            directory = new RAMDirectory(indexPath);
-            searcher = new IndexSearcher(directory);
+            ramDir = new RAMDirectory();
+            Directory.copy(FSDirectory.open(indexDir), ramDir, false);
+            
+            searcher = new IndexSearcher(ramDir);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
     
-    
+    @Override
     public String[] getSynonyms(String term) throws IOException {
         ArrayList synList = new ArrayList();
         String descriptor = null, qualifier = null, searchIndex = null, abbreviation = null;
@@ -109,45 +115,47 @@ public class DeCSEngine implements SynonymEngine {
     private Document decsKey(String code, String index) throws IOException {
         PhraseQuery query = new PhraseQuery();
         Document key = null;
-        Hits hits = null;
-        
+                
         // remove zeros a esquerda do codigo para match com indice de ID do DeCS
         code = code.replaceAll("^0*","");
         
         query.add(new Term(index, code));
-        hits = searcher.search(query);
+        TopDocs hits = searcher.search(query, 1);
         
-        if (hits.length() > 0){
-            key = hits.doc(0);
+        if (hits.totalHits > 0){
+            int docID = hits.scoreDocs[0].doc;
+            key = searcher.doc(docID);
         }
         
         return key;
-        
     }
     
     private List extractKeyValues(Document key) {
         String[] keySyn;
         ArrayList keyValues = new ArrayList();
         
-        // extrai termos autorizados dos descritores nos 3 idiomas
-        for (String term : key.getValues("descriptor")) {
+        // add authorized terms in 3 languages
+        for (String term : key.getValues("descriptor")) {            
             keyValues.add(term);
         }
         
-        // adiciona sinônimos dos descritores como chaves de pesquisa
-        if (this.addSyn == true){
+        // add descriptor synonymous in search keys
+        if (this.addSyn == true){            
             keySyn = key.getValues("syn");
-            if (keySyn != null){
+            //System.out.println("DEBUG -- total of synonymous : " + keySyn.length);
+            if (keySyn.length > 0 ){
                 // extrai sinonimos
-                for (String syn : key.getValues("syn")) {
+                for (String syn : keySyn) {
+                    //System.out.println("DEBUG -- synonymous : " + syn );
                     keyValues.add(syn);
                 }
             }
         }
         
-        // adiciona categorias dos descritores como chaves de pesquisa
+        // add descriptor category in search keys
         if (this.addCategory == true){
             for (String category : key.getValues("category")) {
+                //System.out.println("DEBUG -- category : " + category );
                 keyValues.add(category);
             }
         }

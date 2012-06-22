@@ -1,12 +1,12 @@
 package org.bireme.dia.analysis;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.net.URL;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.ISOLatin1AccentFilter;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
-import java.io.Reader;
-import java.net.URL;
 
 public class DeCSAnalyzer extends Analyzer {
     public static final boolean WORDS = true;

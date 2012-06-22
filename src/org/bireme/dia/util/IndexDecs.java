@@ -14,16 +14,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.bireme.dia.analysis.SimpleKeywordAnalyzer;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -41,35 +40,41 @@ public class IndexDecs extends DefaultHandler {
     private HashMap attributeMap;
     private Document doc;
     private Document encodeDoc;
-    private IndexWriter writer;                     //writer do indice principal
-    private IndexWriter writerEncode;               //writer do indice que realiza encode/decode de descritores
+    private IndexWriter writerMain;               //writer do indice principal
+    private IndexWriter writerCode;               //writer do indice que realiza encode/decode de descritores
     private DecsSyn decsSyn;
     
     public IndexDecs(String xml) throws Exception {
         final ClassLoader loader = this.getClass().getClassLoader();
         URL dirUrl = loader.getResource("./"); // get current directory of classes
         
-        File indexDir = new File("resources/decs/");
-        xml = dirUrl.getPath() + xml;
+        Directory
+ indexDirMain = FSDirectory.open(new File("resources/decs/main/"));
+        Directory
+ indexDirCode = FSDirectory.open(new File("resources/decs/code/"));
         
+        System.out.println("xml :" + xml);
         try {
             
-            writer = new IndexWriter(indexDir + "/main/", new SimpleKeywordAnalyzer(), true);
-            writer.setMergeFactor(100);
+            writerMain = new IndexWriter(indexDirMain, new SimpleKeywordAnalyzer(), IndexWriter.MaxFieldLength.UNLIMITED
+);
+            writerMain.setMergeFactor(100);
             
-            writerEncode = new IndexWriter(indexDir + "/code/", new SimpleKeywordAnalyzer(), true);
-            writerEncode.setMergeFactor(100);
+            writerCode = new IndexWriter(indexDirCode, new SimpleKeywordAnalyzer(), IndexWriter.MaxFieldLength.UNLIMITED
+);
+            writerCode.setMergeFactor(100);
             
-            System.out.println("Indexing to directory '" + indexDir.getAbsolutePath() + "'\\...");
+            System.out.println("Indexing ...");
             
             Date start = new Date();
             indexTerms(xml);
             
             System.out.println("Optimizing index...");            
-            writer.optimize();
-            writer.close();
-            writerEncode.optimize();
-            writerEncode.close();
+            writerMain.optimize();
+            writerMain.close();
+            
+            writerCode.optimize();
+            writerCode.close();
             
             Date end = new Date();
             
@@ -172,41 +177,41 @@ public class IndexDecs extends DefaultHandler {
         // monta indice principal para analizador DeCS
         doc = new Document();
         
-        doc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.UN_TOKENIZED) );
+        doc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
         // adiciona categorias do descritor
         for (String category : decs.getCategory() ) {
             doc.add( new Field("category", category, Field.Store.YES, Field.Index.NO) );
         }      
         // adiciona o descritor nos 3 idiomas
         for (String descriptor : decs.getDescriptor() ) {
-            doc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.TOKENIZED) );
+            doc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.ANALYZED) );
         }
 
         // adiciona o descritor nos 3 idiomas sem tokenize
         for (String descriptor : decs.getDescriptor() ) {
-            doc.add( new Field("descriptor_full", descriptor, Field.Store.YES, Field.Index.UN_TOKENIZED) );
+            doc.add( new Field("descriptor_full", descriptor, Field.Store.YES, Field.Index.NOT_ANALYZED) );
         }
 
         // adiciona sinonimos nos 3 idiomas
         for (String synonym : decs.getSynonym() ) {
-            doc.add( new Field("syn", synonym, Field.Store.YES, Field.Index.TOKENIZED) );
+            doc.add( new Field("syn", synonym, Field.Store.YES, Field.Index.ANALYZED) );
         }
         // adiciona abreviacao dos qualificadores (diagnostico = di)
         if (decs.getAbbreviation() != null){
-            doc.add( new Field("abbreviation", decs.getAbbreviation(), Field.Store.YES, Field.Index.UN_TOKENIZED) );
+            doc.add( new Field("abbreviation", decs.getAbbreviation(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
         }
         
-        writer.addDocument(doc);
+        writerMain.addDocument(doc);
         
         // monta indice para encode/decode de termos DeCS
         encodeDoc = new Document();
-        encodeDoc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.UN_TOKENIZED) );
+        encodeDoc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
         // adiciona o descritor nos 3 idiomas
         for (String descriptor : decs.getDescriptor() ) {
-            encodeDoc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.TOKENIZED) );
+            encodeDoc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.ANALYZED) );
         }
         
-        writerEncode.addDocument(encodeDoc);
+        writerCode.addDocument(encodeDoc);
         
     }
     
