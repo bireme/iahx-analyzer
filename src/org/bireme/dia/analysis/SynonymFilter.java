@@ -37,7 +37,7 @@ public class SynonymFilter extends TokenFilter {
 	if (synonymStack.size() > 0) {
             String syn = synonymStack.pop();                        
             restoreState(current);
-            
+
             termAtt.setTermBuffer(syn);
             //posIncrAtt.setPositionIncrement(0);
             return true;
@@ -53,19 +53,28 @@ public class SynonymFilter extends TokenFilter {
     }
     
     private boolean addAliasesToStack() throws IOException {
-        String[] synonyms = engine.getSynonyms(termAtt.term());
-        String[] termWords;
+        String currentTerm = termAtt.term();
+        //check if only process precod (^d28631) terms
+        if ( this.processOnlyPrecodTerms == true && !currentTerm.startsWith("^d") ){
+            return false;
+        }
+        
+        String[] synonyms = engine.getSynonyms(currentTerm);
+        String synonym_normalized = "";
         
         if (synonyms == null) {
             return false;
         }
-        for (String synonym : synonyms) {
+        for (String synonym : synonyms) {            
             // generate separate tokens (search keys) word by word or term
-            if (this.addWords == true){
-                synonym = synonym.replaceAll("-", " "); // split omega-3 in 2 tokens (omega 3)
-                termWords = synonym.split(" ");
+            if (this.addWords == true){                
+                // first add the original term to the index
+                synonymStack.push(synonym);                
+                // after split and add term words
+                synonym_normalized = synonym.replaceAll("-", " "); // split omega-3 in 2 tokens (omega 3)
+                String[] termWords = synonym_normalized.split(" ");
 
-                if (termWords.length > 0){
+                if (termWords.length > 1){                    
                     // inverte a ordem de percorrer os termos devido ao stack sempre adicionar no inicio da pilha
                     for (int i = termWords.length-1; i >= 0; i--) {
                         synonymStack.push(termWords[i]);

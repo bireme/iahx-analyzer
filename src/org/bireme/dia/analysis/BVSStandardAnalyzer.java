@@ -37,10 +37,10 @@ public class BVSStandardAnalyzer extends Analyzer {
                             new WhitespaceTokenizer(reader))),
                                             engine, WORDS, PRECOD);
 
-        // passa a saida pelo filtros de acentos e lowercase
+        // passa a saida pelo filtros de acentos e lowercase        
         result = new LowerCaseFilter(result);
         result = new ISOLatin1AccentFilter(result);
-        result = new PunctuationFilter(result);
+        result = new PunctuationFilter(result);        
         return result;
     }
 }

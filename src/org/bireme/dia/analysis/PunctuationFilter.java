@@ -30,10 +30,12 @@ public class PunctuationFilter extends TokenFilter {
         int length = termAtt.length();
         char[] buffer = termAtt.buffer();
         int upto = 0; 
+        String invalidChars = ".,;:=";
         
         for (int i = 0; i < length; i++) {            
             char c = buffer[i]; 
-            if (!Character.isLetterOrDigit(c) ) {
+            
+            if ( invalidChars.indexOf(c) >= 0 ) {
                 //Do Nothing, (drop the character) 
             }else{
                 buffer[upto++] = c; 

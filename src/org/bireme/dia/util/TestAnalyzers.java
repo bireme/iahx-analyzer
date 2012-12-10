@@ -15,7 +15,7 @@ public class TestAnalyzers {
         
         if (text.equals("")){
             //text = "^d30600^s22031 ^d4250 MalAria em PAIses da america Do SuL 0329023,0099 &878922 abel, laerte packer; tardelli, adalberto";
-            text = "^d14";
+            text = "^d3727";
         }
 
         System.out.println("BVSStandardAnalyzer");
@@ -35,6 +35,10 @@ public class TestAnalyzers {
 
         System.out.println("DeCSKeywordAnalyzer");
         AnalyzerUtils.displayTokensWithFullDetails(new DeCSKeywordAnalyzer(), text);
+
+        System.out.println("DeCSAuthorizedTermAndCategoryAnalyzer");
+        AnalyzerUtils.displayTokensWithFullDetails(new DeCSAuthorizedTermAndCategoryAnalyzer(), text);
+
 */
     }
 }
