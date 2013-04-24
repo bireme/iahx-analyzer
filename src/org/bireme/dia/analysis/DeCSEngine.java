@@ -23,11 +23,17 @@ public class DeCSEngine implements SynonymEngine {
     // flag para informar se sera gerado chaves com as categorias e sinomimos dos descritores
     private boolean addCategory;
     private boolean addSyn;
+    private boolean keysForQualifiers = true;
+    private boolean onlyQualifiers = false;
     
-    public DeCSEngine(String indexPath, boolean category, boolean syn) {
+    public DeCSEngine(String indexPath, 
+            boolean category, boolean syn, boolean keyqlf, boolean onlyqlf) {
         
         this.addCategory = category;
         this.addSyn = syn;
+        this.keysForQualifiers = keyqlf;
+        this.onlyQualifiers = onlyqlf;
+        
         File indexDir = new File(indexPath);
         
         try{
@@ -73,11 +79,28 @@ public class DeCSEngine implements SynonymEngine {
             searchIndex = "descriptor";
         }
 
+        if (this.keysForQualifiers && qualifier != null){
+            decsQlf = decsKey(qualifier, searchIndex);
+            if (decsQlf != null){
+                synList.addAll(extractKeyValues(decsQlf));
+            }
+            if (this.onlyQualifiers){
+                return (String[]) synList.toArray(new String[0]);
+            }
+        }
+       
         if (descriptor != null && !descriptor.equals("")){
             decsTerm = decsKey(descriptor, searchIndex);
             
             if (decsTerm != null){
                 synList.addAll(extractKeyValues(decsTerm));
+            }
+        }
+        
+        if (this.keysForQualifiers && qualifier != null){
+            decsQlf = decsKey(qualifier, searchIndex);
+            if (decsQlf != null){
+                synList.addAll(extractKeyValues(decsQlf));
             }
         }
         
@@ -105,10 +128,10 @@ public class DeCSEngine implements SynonymEngine {
                         joinDescQlf = joinDesc[i] + "/" + abbreviation;    
                         synList.add(joinDescQlf); 
                     }
-               }
+                }
             }            
         }        
-        
+     
         return (String[]) synList.toArray(new String[0]);
     }
     

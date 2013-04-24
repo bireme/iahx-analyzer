@@ -16,6 +16,9 @@ public class BVSStandardAnalyzer extends Analyzer {
     public static final boolean SYN = true;
     public static final boolean PRECOD = true;          // somente gera tokens para descritores que estiverem  
                                                         // precodificados no formato ^didentificador^squalificador
+    public static final boolean KEYQLF = false;
+    public static final boolean ONLYQLF = false;
+    
 
     private SynonymEngine engine;
     protected Map<String, String> args;
@@ -24,7 +27,7 @@ public class BVSStandardAnalyzer extends Analyzer {
         final ClassLoader loader = this.getClass().getClassLoader();
         URL dirUrl = loader.getResource("./"); // get current directory of classes
 
-        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN);
+        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF, ONLYQLF);
     }
 
     public TokenStream tokenStream(String fieldName, Reader reader) {

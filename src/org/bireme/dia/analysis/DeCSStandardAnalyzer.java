@@ -13,6 +13,9 @@ public class DeCSStandardAnalyzer extends Analyzer {
     public static final boolean CATEGORY = true;
     public static final boolean SYN = true;
     public static final boolean PRECOD = false;
+    public static final boolean KEYQLF = false;
+    public static final boolean ONLYQLF = false;
+    
 
     private SynonymEngine engine;
 
@@ -21,7 +24,7 @@ public class DeCSStandardAnalyzer extends Analyzer {
         URL dirUrl = loader.getResource("./"); // get current directory of classes
 
 
-        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN);
+        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF, ONLYQLF);
     }
 
     public TokenStream tokenStream(String fieldName, Reader reader) {
