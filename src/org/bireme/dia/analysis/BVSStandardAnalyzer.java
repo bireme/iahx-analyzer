@@ -12,11 +12,11 @@ import java.util.Map;
 
 public class BVSStandardAnalyzer extends Analyzer {
     public static final boolean WORDS = true;
-    public static final boolean CATEGORY = false;
+    public static final boolean CATEGORY = true;
     public static final boolean SYN = true;
     public static final boolean PRECOD = true;          // somente gera tokens para descritores que estiverem  
                                                         // precodificados no formato ^didentificador^squalificador
-    public static final boolean KEYQLF = false;
+    public static final boolean KEYQLF = true;
     public static final boolean ONLYQLF = false;
     
 
