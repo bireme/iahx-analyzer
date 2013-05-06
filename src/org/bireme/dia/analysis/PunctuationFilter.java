@@ -30,7 +30,7 @@ public class PunctuationFilter extends TokenFilter {
         int length = termAtt.length();
         char[] buffer = termAtt.buffer();
         int upto = 0; 
-        String invalidChars = ".,;:=";
+        String invalidChars = ",;:=?";
         
         for (int i = 0; i < length; i++) {            
             char c = buffer[i]; 

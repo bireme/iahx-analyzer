@@ -1,6 +1,8 @@
 package org.bireme.dia.analysis;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 import org.apache.lucene.analysis.TokenFilter;
@@ -60,7 +62,8 @@ public class SynonymFilter extends TokenFilter {
         }
         
         String[] synonyms = engine.getSynonyms(currentTerm);
-        String synonym_normalized = "";
+        String synonym_normalized;   
+        List<String> splited_by_hyphen = null;
         
         if (synonyms == null) {
             return false;
@@ -70,14 +73,21 @@ public class SynonymFilter extends TokenFilter {
             if (this.addWords == true){                
                 // first add the original term to the index
                 synonymStack.push(synonym);                
-                // after split and add term words
-                synonym_normalized = synonym.replaceAll("-", " "); // split omega-3 in 2 tokens (omega 3)
+
+                synonym_normalized = synonym.replaceAll("/", " "); 
                 String[] termWords = synonym_normalized.split(" ");
 
                 if (termWords.length > 1){                    
                     // inverte a ordem de percorrer os termos devido ao stack sempre adicionar no inicio da pilha
                     for (int i = termWords.length-1; i >= 0; i--) {
-                        synonymStack.push(termWords[i]);
+                        if (!termWords[i].isEmpty()){                            
+                            synonymStack.push(termWords[i]);
+                            if (termWords[i].contains("-")){
+                                // split keys like omega-3 in 2 tokens (omega 3)
+                                splited_by_hyphen = Arrays.asList(termWords[i].split("-"));
+                                synonymStack.addAll(splited_by_hyphen);
+                            }
+                        }
                     }        
                 }
             } else {
