@@ -78,8 +78,12 @@ public class DeCSEngine implements SynonymEngine {
         }else{
             searchIndex = "descriptor";
         }
+        
+        if (this.onlyQualifiers && qualifier == null){
+            return null;
+        }
 
-        if (this.keysForQualifiers && qualifier != null){
+        if (this.keysForQualifiers && qualifier != null){            
             decsQlf = decsKey(qualifier, searchIndex);
             if (decsQlf != null){
                 synList.addAll(extractKeyValues(decsQlf));
