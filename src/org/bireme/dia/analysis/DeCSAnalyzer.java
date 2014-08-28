@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.ISOLatin1AccentFilter;
-import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
+import org.apache.lucene.util.Version;
 
 public class DeCSAnalyzer extends Analyzer {
     public static final boolean WORDS = true;
@@ -16,29 +19,29 @@ public class DeCSAnalyzer extends Analyzer {
     public static final boolean KEYQLF = false;
     public static final boolean ONLYQLF = false;
 
-    private SynonymEngine engine;
+    private final SynonymEngine engine;
 
     public DeCSAnalyzer() throws IOException {
         final ClassLoader loader = this.getClass().getClassLoader();
-        URL dirUrl = loader.getResource("./"); // get current directory of classes
+        final URL dirUrl = loader.getResource("./"); // get current directory of classes
 
-        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF, ONLYQLF);
+        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF,
+                                                                       ONLYQLF);
     }
 
-    public TokenStream tokenStream(String fieldName, Reader reader) {
-        TokenStream result;
+    @Override
+    protected TokenStreamComponents createComponents(final String fieldName,
+                                                     final Reader reader) {
+        final Tokenizer source = new KeywordTokenizer(reader);
+        final TokenStream filter1 = new ASCIIFoldingFilter(source);
+        final TokenStream filter2 = new LowerCaseFilter(Version.LUCENE_4_9,
+                                                        filter1);
+        final TokenStream filter3 = new SynonymFilter(filter2, engine,
+                                                                 WORDS, PRECOD);
+        final TokenStream filter4 = new LowerCaseFilter(Version.LUCENE_4_9,
+                                                        filter3);
+        final TokenStream filter5 = new ASCIIFoldingFilter(filter4);
 
-        // passa a entrada (reader) pelo filtros de sinônimos, acentos e lowercase
-        result = new SynonymFilter(
-                    new LowerCaseFilter(
-                        new ISOLatin1AccentFilter(
-                            new KeywordTokenizer(reader))),
-                                            engine, WORDS, PRECOD);
-
-
-        // passa a saida pelo filtros de acentos e lowercase
-        result = new LowerCaseFilter(result);
-        result = new ISOLatin1AccentFilter(result);
-        return result;
+        return new TokenStreamComponents(source, filter5);
     }
 }

@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bireme.dia.analysis;
 
 import java.io.IOException;
-import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -15,11 +10,11 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  * @author vinicius
  */
 public class PunctuationFilter extends TokenFilter {
-    private CharTermAttribute termAtt;
-    
-    public PunctuationFilter(TokenStream input) {
+    private final CharTermAttribute termAtt;
+
+    public PunctuationFilter(final TokenStream input) {
         super(input);
-        this.termAtt = addAttribute(CharTermAttribute.class);        
+        this.termAtt = addAttribute(CharTermAttribute.class);
     }
 
     @Override
@@ -27,22 +22,23 @@ public class PunctuationFilter extends TokenFilter {
         if (!input.incrementToken()) {
             return false;
         }
-        int length = termAtt.length();
-        char[] buffer = termAtt.buffer();
-        int upto = 0; 
-        String invalidChars = ",;:=?";
-        
-        for (int i = 0; i < length; i++) {            
-            char c = buffer[i]; 
-            
-            if ( invalidChars.indexOf(c) >= 0 ) {
-                //Do Nothing, (drop the character) 
-            }else{
-                buffer[upto++] = c; 
+        final int length = termAtt.length();
+        final char[] buffer = termAtt.buffer();
+        final String invalidChars = ",;:=?";
+        int upto = 0;
+
+        for (int i = 0; i < length; i++) {
+            final char c = buffer[i];
+
+            if (invalidChars.indexOf(c) >= 0) {
+                //Do Nothing, (drop the character)
+            } else {
+                buffer[upto++] = c;
             }
         }
-            
+
         termAtt.setLength(upto);
+
         return true;
     }
 }

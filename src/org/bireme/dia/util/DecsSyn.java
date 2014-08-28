@@ -1,12 +1,3 @@
-/*
- * Term.java
- *
- * Created on July 21, 2006, 11:31 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package org.bireme.dia.util;
 
 import java.util.ArrayList;
@@ -14,20 +5,21 @@ import java.util.ArrayList;
 /**
  *
  * @author vinicius.andrade
+ * date: 20060721
  */
-public class DecsSyn {
+public class DecsSyn {    
+    private final ArrayList<String> category;
+    private final ArrayList<String> descriptor;
+    private final ArrayList<String> synonym;
     private String id;
-    private ArrayList<String> category;
-    private ArrayList<String> descriptor;
-    private ArrayList<String> synonym;
     private String treeId;
     private String abbreviation;
     
     /** Creates a new instance of Term */
     public DecsSyn() {
-        category = new ArrayList();
-        descriptor = new ArrayList();
-        synonym = new ArrayList();
+        category = new ArrayList<String>();
+        descriptor = new ArrayList<String>();
+        synonym = new ArrayList<String>();
     }
     
     void setId(String id) {
@@ -75,23 +67,23 @@ public class DecsSyn {
     }
     
     /*
-     * Description: retorna o descritor por idioma (1 - ingl�s, 2-espanhol, 3-portugu�s)
+     * Description: retorna o descritor por idioma (1 - inglês, 2-espanhol, 3-português)
      */
-    public String getDescriptor(String lang) {
-        String desc = "";
+    public String getDescriptor(final String lang) {
+        final String desc;
         
-        if (lang == "en"){
+        if (lang.equals("en")) {
             desc = this.descriptor.get(0);
-        }else if (lang == "es"){
+        } else if (lang.equals("es")) {
             desc = this.descriptor.get(1);
-        }else{
+        } else {
             desc = this.descriptor.get(2);
         }
+        
         return desc;
     }
     
     public ArrayList<String> getSynonym() {
         return synonym;
-    }
-    
+    }    
 }

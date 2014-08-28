@@ -1,12 +1,3 @@
-/*
- * Index.java
- *
- * Created on June 30, 2006, 11:54 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package org.bireme.dia.util;
 
 import java.io.File;
@@ -14,14 +5,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.bireme.dia.analysis.SimpleKeywordAnalyzer;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -32,138 +27,154 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  *
  * @author vinicius.andrade
+ * date: 20060630
  */
-public class IndexDecs extends DefaultHandler {
+public class IndexDecs extends DefaultHandler {   
     /** A buffer for each XML element */
-    private StringBuilder elementBuffer;
-    private StringBuilder path;
-    private HashMap attributeMap;
-    private Document doc;
-    private Document encodeDoc;
-    private IndexWriter writerMain;               //writer do indice principal
-    private IndexWriter writerCode;               //writer do indice que realiza encode/decode de descritores
+    private final HashMap<String,String> attributeMap;    
+    private final StringBuilder elementBuffer;    
+    private final IndexWriter writerMain;         //writer do indice principal
+    private final IndexWriter writerCode;         //writer do indice que realiza encode/decode de descritores
+    
+    private StringBuilder path;    
     private DecsSyn decsSyn;
     
-    public IndexDecs(String xml) throws Exception {
-        final ClassLoader loader = this.getClass().getClassLoader();
-        URL dirUrl = loader.getResource("./"); // get current directory of classes
+    public IndexDecs(String xml) throws IOException /*throws Exception*/ {
         
-        Directory
- indexDirMain = FSDirectory.open(new File("resources/decs/main/"));
-        Directory
- indexDirCode = FSDirectory.open(new File("resources/decs/code/"));
+        
+        final ClassLoader loader = this.getClass().getClassLoader();
+        final URL dirUrl = loader.getResource("./"); // get current directory of classes        
+        final Directory indexDirMain = FSDirectory.open(
+                                              new File("resources/decs/main/"));
+        final Directory indexDirCode = FSDirectory.open(
+                                              new File("resources/decs/code/"));
+        final IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_4_9,
+                                                   new SimpleKeywordAnalyzer());
+        
+        attributeMap = new HashMap<String,String>();
+        elementBuffer = new StringBuilder();
         
         System.out.println("xml :" + xml);
-        try {
-            
-            writerMain = new IndexWriter(indexDirMain, new SimpleKeywordAnalyzer(), IndexWriter.MaxFieldLength.UNLIMITED
-);
-            writerMain.setMergeFactor(100);
-            
-            writerCode = new IndexWriter(indexDirCode, new SimpleKeywordAnalyzer(), IndexWriter.MaxFieldLength.UNLIMITED
-);
-            writerCode.setMergeFactor(100);
-            
+        
+        writerMain = new IndexWriter(indexDirMain, conf);
+        /*
+            The default MergePolicy is now TieredMergePolicy since moving from 
+            Lucene 3.1 to Lucene 3.4, and to set merge factor policy we have to 
+            set two options maxMergeAtOnce and segmentsPerTier on the plicy 
+            itself, do we need this ?             
+        */
+        //writerMain.setMergeFactor(100);
+
+        writerCode = new IndexWriter(indexDirCode, conf);
+        //writerCode.setMergeFactor(100);
+
+        try {                        
             System.out.println("Indexing ...");
             
-            Date start = new Date();
+            final Date start = new Date();
+            
             indexTerms(xml);
             
-            System.out.println("Optimizing index...");            
-            writerMain.optimize();
+            //System.out.println("Optimizing index...");     
+            /*
+              Deprecated.
+              This method has been deprecated, as it is horribly inefficient and
+              very rarely justified. Lucene's multi-segment search performance 
+              has improved over time, and the default TieredMergePolicy now 
+              targets segments with deletions.
+            */ 
+            //writerMain.optimize();
             writerMain.close();
             
-            writerCode.optimize();
+            //writerCode.optimize();
             writerCode.close();
             
-            Date end = new Date();
-            
-            System.out.println(end.getTime() - start.getTime() + " total milliseconds");
+            System.out.println((new Date()).getTime() - start.getTime() 
+                                                       + " total milliseconds");
             
         } catch (IOException e) {
-            System.out.println("caught a " + e.getClass() + "\n with message: " +
-                    e.getMessage());
+            System.out.println("caught a " + e.getClass() + "\n with message: "
+                                                              + e.getMessage());
         }
         
     }
     
     private void indexTerms(String xml){
-        SAXParser sax = null;
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        
-        InputSource xmlInput = new InputSource(xml);
+        final SAXParserFactory factory = SAXParserFactory.newInstance();                        
+        final InputSource xmlInput = new InputSource(xml);
         xmlInput.setEncoding("ISO-8859-1");
         
         try {
-            sax = factory.newSAXParser();
-            XMLReader reader = sax.getXMLReader();
+            final SAXParser sax = factory.newSAXParser();
+            final XMLReader reader = sax.getXMLReader();
+            
             reader.setEntityResolver(null);
             reader.setContentHandler(this);
-            reader.parse(xmlInput);
-            
-        } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
-        } catch (SAXException ex) {
-            ex.printStackTrace();
+            reader.parse(xmlInput);            
         } catch(Exception ex){
             ex.printStackTrace();
         }
     }
     
+    @Override
     public void startDocument() {
-        this.path = new StringBuilder("/");
-        attributeMap = new HashMap();
-        elementBuffer = new StringBuilder();
+        path = new StringBuilder("/");
+        attributeMap.clear();
     }
     
-    public void startElement(String uri, String localName, String qName, Attributes atts)
-    throws SAXException {
+    @Override
+    public void startElement(final String uri, 
+                             final String localName, 
+                             final String qName, 
+                             final Attributes atts) throws SAXException {
         
-        this.path.append(qName + "/");
+        path.append(qName).append("/");
         
-        if ( qName.equals("term") ) {
+        if (qName.equals("term")) {
             decsSyn = new DecsSyn();
-            decsSyn.setId( atts.getValue("mfn") );
+            decsSyn.setId(atts.getValue("mfn"));
         }
         
         elementBuffer.setLength(0);
         attributeMap.clear();
         if (atts.getLength() > 0) {
-            attributeMap = new HashMap();
             for (int i = 0; i < atts.getLength(); i++) {
                 attributeMap.put(atts.getQName(i), atts.getValue(i));
             }
         }
     }
     
-    public void characters(char[] text, int start, int length) {
+    @Override
+    public void characters(final char[] text, 
+                           final int start, 
+                           final int length) {
         elementBuffer.append(text, start, length);
     }
     
-    public void ignorableWhitespace(char[] ch, int start, int length)
-    throws SAXException {
-        
+    @Override
+    public void ignorableWhitespace(final char[] ch, 
+                                    final int start, 
+                                    final int length) throws SAXException {        
     }
     
-    public void endElement(String uri, String localName, String qName)
-    throws SAXException {
+    @Override
+    public void endElement(final String uri, 
+                           final String localName, 
+                           final String qName) throws SAXException {
         
-        String text = elementBuffer.toString();
+        final String text = elementBuffer.toString();
         
-        if ( qName.equals("descriptor") ){
-            decsSyn.addDescriptor(text);
-            
-        }else if (qName.equals("synonym")){
-            decsSyn.addSynonym(text);
-            
-        }else if( qName.equals("category") ) {
-            decsSyn.addCategory(text);
-            
-        }else if (qName.equals("abbreviation")){
+        if (qName.equals("descriptor")) {
+            decsSyn.addDescriptor(text);            
+        } else if (qName.equals("synonym")) {
+            decsSyn.addSynonym(text);            
+        } else if( qName.equals("category")) {
+            decsSyn.addCategory(text);            
+        } else if (qName.equals("abbreviation")) {
             decsSyn.setAbbreviation(text);
         }
         
-        if ( qName.equals("term") ){
+        if (qName.equals("term")) {
             try {
                 index(decsSyn);
             } catch (IOException ex) {
@@ -172,52 +183,51 @@ public class IndexDecs extends DefaultHandler {
         }
     }
     
-    private void index(DecsSyn decs) throws IOException {
-        
+    private void index(DecsSyn decs) throws IOException {        
         // monta indice principal para analizador DeCS
-        doc = new Document();
+        final Document doc = new Document();        
+        doc.add( new StringField("id", decs.getId(), Field.Store.YES));
         
-        doc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
         // adiciona categorias do descritor
-        for (String category : decs.getCategory() ) {
-            doc.add( new Field("category", category, Field.Store.YES, Field.Index.NO) );
+        for (String category : decs.getCategory()) {
+            doc.add(new StoredField("category", category));
         }      
         // adiciona o descritor nos 3 idiomas
-        for (String descriptor : decs.getDescriptor() ) {
-            doc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.ANALYZED) );
+        for (String descriptor : decs.getDescriptor()) {
+            doc.add(new TextField("descriptor", descriptor, Field.Store.YES));
         }
-
         // adiciona o descritor nos 3 idiomas sem tokenize
-        for (String descriptor : decs.getDescriptor() ) {
-            doc.add( new Field("descriptor_full", descriptor, Field.Store.YES, Field.Index.NOT_ANALYZED) );
+        for (String descriptor : decs.getDescriptor()) {
+            doc.add(new StringField("descriptor_full", descriptor, 
+                                                              Field.Store.YES));
         }
-
         // adiciona sinonimos nos 3 idiomas
-        for (String synonym : decs.getSynonym() ) {
-            doc.add( new Field("syn", synonym, Field.Store.YES, Field.Index.ANALYZED) );
-        }
+        for (String synonym : decs.getSynonym()) {
+            doc.add(new TextField("syn", synonym, Field.Store.YES) );
+        }        
         // adiciona abreviacao dos qualificadores (diagnostico = di)
-        if (decs.getAbbreviation() != null){
-            doc.add( new Field("abbreviation", decs.getAbbreviation(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
+        if (decs.getAbbreviation() != null) {
+            doc.add(new StringField("abbreviation", decs.getAbbreviation(), 
+                                                              Field.Store.YES));
         }
         
         writerMain.addDocument(doc);
         
         // monta indice para encode/decode de termos DeCS
-        encodeDoc = new Document();
-        encodeDoc.add( new Field("id", decs.getId(), Field.Store.YES, Field.Index.NOT_ANALYZED) );
+        final Document encodeDoc;encodeDoc = new Document();
+        encodeDoc.add(new StringField("id", decs.getId(), Field.Store.YES));
+        
         // adiciona o descritor nos 3 idiomas
-        for (String descriptor : decs.getDescriptor() ) {
-            encodeDoc.add( new Field("descriptor", descriptor, Field.Store.YES, Field.Index.ANALYZED) );
+        for (String descriptor : decs.getDescriptor()) {
+            encodeDoc.add(new TextField("descriptor", descriptor, 
+                                                              Field.Store.YES));
         }
         
-        writerCode.addDocument(encodeDoc);
-        
+        writerCode.addDocument(encodeDoc);        
     }
     
     public static void main(String args[]) throws Exception {
-
-        IndexDecs index = new IndexDecs("resources/decs/xml/decs-metadata.xml");
-        
+        final IndexDecs index = 
+                          new IndexDecs("resources/decs/xml/decs-metadata.xml");        
     }
 }

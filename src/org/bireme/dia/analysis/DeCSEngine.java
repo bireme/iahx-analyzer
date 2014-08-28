@@ -3,190 +3,171 @@ package org.bireme.dia.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.RAMDirectory;
 
 public class DeCSEngine implements SynonymEngine {
-    private RAMDirectory ramDir;
-    IndexSearcher searcher;
-    HashMap map = new HashMap();
-    
+    private final IndexSearcher searcher;
+
     // flag para informar se sera gerado chaves com as categorias e sinomimos dos descritores
-    private boolean addCategory;
-    private boolean addSyn;
-    private boolean keysForQualifiers = true;
-    private boolean onlyQualifiers = false;
-    
-    public DeCSEngine(String indexPath, 
-            boolean category, boolean syn, boolean keyqlf, boolean onlyqlf) {
-        
+    private final boolean addCategory;
+    private final boolean addSyn;
+    private final boolean keysForQualifiers;
+    private final boolean onlyQualifiers;
+
+    public DeCSEngine(final String indexPath,
+                      final boolean category,
+                      final boolean syn,
+                      final boolean keyqlf,
+                      final boolean onlyqlf) throws IOException {
+
         this.addCategory = category;
         this.addSyn = syn;
         this.keysForQualifiers = keyqlf;
         this.onlyQualifiers = onlyqlf;
-        
-        File indexDir = new File(indexPath);
-        
-        try{
-            ramDir = new RAMDirectory();
-            Directory.copy(FSDirectory.open(indexDir), ramDir, false);
-            
-            searcher = new IndexSearcher(ramDir);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+
+        final File indexDir = new File(indexPath);
+        final RAMDirectory ramDir = new RAMDirectory(
+                                    FSDirectory.open(indexDir), IOContext.READ);
+        final DirectoryReader reader = DirectoryReader.open(ramDir);
+
+        searcher = new IndexSearcher(reader);
     }
-    
+
     @Override
-    public String[] getSynonyms(String term) throws IOException {
-        ArrayList synList = new ArrayList();
-        String descriptor = null, qualifier = null, searchIndex = null, abbreviation = null;
+    public String[] getSynonyms(final String term) throws IOException {
+        final ArrayList<String> synList = new ArrayList<String>();
+        final String descriptor;
+        final String qualifier;
+        final String searchIndex;
         Document decsTerm = null;
-        Document decsQlf =  null;
-        Document decs = null;
-        
+
         // tratamento para descritor padrao LILACS
-        if (term.startsWith("^d")){            
+        if (term.startsWith("^d")) {
             //retira antes de indexar o qualificador
-            if (term.contains("^s")){
+            if (term.contains("^s")) {
                 descriptor = term.substring(2,term.indexOf("^s"));
                 qualifier =  term.substring(term.indexOf("^s")+2);
-            }else{
+            } else {
                 descriptor = term.substring(2);
-            }           
-        }else{
+                qualifier = null;
+            }
+        } else {
             // tratamento para descritores livres /
             if (term.contains("/")){
                 descriptor = term.substring(0,term.indexOf('/'));
-                qualifier = term.substring(term.indexOf('/')+1);
-            }else{
+                qualifier = term.substring(term.indexOf('/') + 1);
+            } else {
                 descriptor = term;
-            }            
+                qualifier = null;
+            }
         }
         // verifica se eh um descritor codificado DeCS e seta o indice de busca
-        if (descriptor.matches("[0-9]+")){
-            searchIndex = "id";            
-        }else{
+        if (descriptor.matches("[0-9]+")) {
+            searchIndex = "id";
+        } else {
             searchIndex = "descriptor";
         }
-        
-        if (this.onlyQualifiers && qualifier == null){
+
+        if (onlyQualifiers && (qualifier == null)) {
             return null;
         }
 
-        if (this.keysForQualifiers && qualifier != null){            
-            decsQlf = decsKey(qualifier, searchIndex);
-            if (decsQlf != null){
+        if (keysForQualifiers && (qualifier != null)) {
+            final Document decsQlf = decsKey(qualifier, searchIndex);
+            if (decsQlf != null) {
                 synList.addAll(extractKeyValues(decsQlf));
             }
-            if (this.onlyQualifiers){
+            if (onlyQualifiers) {
                 return (String[]) synList.toArray(new String[0]);
             }
         }
-       
-        if (descriptor != null && !descriptor.equals("")){
+
+        if (!descriptor.isEmpty()) {
             decsTerm = decsKey(descriptor, searchIndex);
-            
             if (decsTerm != null){
                 synList.addAll(extractKeyValues(decsTerm));
             }
         }
-        
-        if (this.keysForQualifiers && qualifier != null){
-            decsQlf = decsKey(qualifier, searchIndex);
+
+        if (keysForQualifiers && (qualifier != null)){
+            final Document decsQlf = decsKey(qualifier, searchIndex);
             if (decsQlf != null){
                 synList.addAll(extractKeyValues(decsQlf));
             }
         }
-        
+
         // realiza o join entre o descritor e qualificador (usando o campo de termo autorizado)
-        if (qualifier != null && !qualifier.equals("")){
-            decsQlf = decsKey(qualifier, searchIndex);            
-           
-            if (decsTerm != null && decsQlf != null){
-                String[] joinDesc = decsTerm.getValues("descriptor_full");
-                String[] joinQlf  = decsQlf.getValues("descriptor_full");
-                
-                String joinDescQlf;
+        if ((qualifier != null) && !qualifier.isEmpty()) {
+            final Document decsQlf = decsKey(qualifier, searchIndex);
+
+            if ((decsTerm != null) && (decsQlf != null)) {
+                final String[] joinDesc = decsTerm.getValues("descriptor_full");
+                final String[] joinQlf  = decsQlf.getValues("descriptor_full");
+
                 for (int i = 0; i < joinDesc.length; i++) {
-                    joinDescQlf = joinDesc[i];
-                    if ( ! joinQlf[i].startsWith("/") ){
+                    String joinDescQlf = joinDesc[i];
+                    if ( ! joinQlf[i].startsWith("/") ) {
                         joinDescQlf += "/";
                     }
                     joinDescQlf  += joinQlf[i];
-
                     synList.add(joinDescQlf);
-                    
+
                     // adiciona tambem a chave contendo o descritor com o qualificador no formato abreviatura (ex. /di = diagnostico)
                     if (decsQlf.get("abbreviation") != null){
-                        abbreviation = decsQlf.get("abbreviation");
-                        joinDescQlf = joinDesc[i] + "/" + abbreviation;    
-                        synList.add(joinDescQlf); 
+                        final String abbreviation = decsQlf.get("abbreviation");
+                        joinDescQlf = joinDesc[i] + "/" + abbreviation;
+                        synList.add(joinDescQlf);
                     }
                 }
-            }            
-        }        
-     
+            }
+        }
+
         return (String[]) synList.toArray(new String[0]);
     }
-    
-    private Document decsKey(String code, String index) throws IOException {
-        PhraseQuery query = new PhraseQuery();
+
+    private Document decsKey(final String code,
+                             final String index) throws IOException {
+        final PhraseQuery query = new PhraseQuery();
         Document key = null;
-                
+
         // remove zeros a esquerda do codigo para match com indice de ID do DeCS
-        code = code.replaceAll("^0*","");
-        
-        query.add(new Term(index, code));
-        TopDocs hits = searcher.search(query, 1);
-        
-        if (hits.totalHits > 0){
-            int docID = hits.scoreDocs[0].doc;
+        final String code2 = code.replaceAll("^0*","");
+
+        query.add(new Term(index, code2));
+
+        final TopDocs hits = searcher.search(query, 1);
+        if (hits.totalHits > 0) {
+            final int docID = hits.scoreDocs[0].doc;
             key = searcher.doc(docID);
         }
-        
+
         return key;
     }
-    
-    private List extractKeyValues(Document key) {
-        String[] keySyn;
-        ArrayList keyValues = new ArrayList();
-        
+
+    private List<String> extractKeyValues(final Document key) {
         // add authorized terms in 3 languages
-        for (String term : key.getValues("descriptor")) {            
-            keyValues.add(term);
-        }
-        
+        final List<String> keyValues = Arrays.asList(key.getValues("descriptor"));
+
         // add descriptor synonymous in search keys
-        if (this.addSyn == true){            
-            keySyn = key.getValues("syn");
-            //System.out.println("DEBUG -- total of synonymous : " + keySyn.length);
-            if (keySyn.length > 0 ){
-                // extrai sinonimos
-                for (String syn : keySyn) {
-                    //System.out.println("DEBUG -- synonymous : " + syn );
-                    keyValues.add(syn);
-                }
-            }
+        if (addSyn) {
+            keyValues.addAll(Arrays.asList(key.getValues("syn")));
         }
-        
         // add descriptor category in search keys
-        if (this.addCategory == true){
-            for (String category : key.getValues("category")) {
-                //System.out.println("DEBUG -- category : " + category );
-                keyValues.add(category);
-            }
+        if (addCategory) {
+            keyValues.addAll(Arrays.asList(key.getValues("category")));
         }
-        
+
         return keyValues;
     }
 }
