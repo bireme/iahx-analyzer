@@ -6,10 +6,9 @@ import java.net.URL;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
+import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
-import org.apache.lucene.util.Version;
 
 public class BVSStandardAnalyzer extends Analyzer {
     public static final boolean WORDS = true;
@@ -33,15 +32,12 @@ public class BVSStandardAnalyzer extends Analyzer {
     @Override
     protected TokenStreamComponents createComponents(final String fieldName,
                                                      final Reader reader) {
-        final Tokenizer source = new WhitespaceTokenizer(Version.LUCENE_4_9,
-                                                                        reader);
+        final Tokenizer source = new WhitespaceTokenizer(reader);
         final TokenStream filter1 = new ASCIIFoldingFilter(source);
-        final TokenStream filter2 = new LowerCaseFilter(Version.LUCENE_4_9,
-                                                        filter1);
+        final TokenStream filter2 = new LowerCaseFilter(filter1);
         final TokenStream filter3 = new SynonymFilter(filter2, engine,
                                                                  WORDS, PRECOD);
-        final TokenStream filter4 = new LowerCaseFilter(Version.LUCENE_4_9,
-                                                        filter3);
+        final TokenStream filter4 = new LowerCaseFilter(filter3);
         final TokenStream filter5 = new ASCIIFoldingFilter(filter4);
         final TokenStream filter6 = new PunctuationFilter(filter5);
 

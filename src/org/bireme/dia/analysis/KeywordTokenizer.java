@@ -3,7 +3,6 @@ package org.bireme.dia.analysis;
 import org.apache.lucene.analysis.util.CharTokenizer;
 
 import java.io.Reader;
-import org.apache.lucene.util.Version;
 
 /**
  * CharTokenizer limits token width to 255 characters, though.
@@ -12,7 +11,7 @@ import org.apache.lucene.util.Version;
 public class KeywordTokenizer extends CharTokenizer {
 
     public KeywordTokenizer(final Reader in) {
-        super(Version.LUCENE_4_9, in);
+        super(in);
     }
 
     @Override

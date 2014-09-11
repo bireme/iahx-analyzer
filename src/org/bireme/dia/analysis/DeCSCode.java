@@ -13,7 +13,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.util.Version;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.RAMDirectory;
@@ -39,8 +38,8 @@ public class DeCSCode {
         if (!descriptor.equals("")) {
 
             final String descriptorPhrase = "\"" + descriptor + "\"";
-            final QueryParser qParser = new QueryParser(Version.LUCENE_4_9,
-                                     "descriptor", new SimpleKeywordAnalyzer());
+            final QueryParser qParser = new QueryParser("descriptor", 
+                                                   new SimpleKeywordAnalyzer());
             final Query query = qParser.parse(descriptorPhrase);
             final TopDocs hits = decs.search(query, 1);
 

@@ -48,7 +48,8 @@ public class IndexDecs extends DefaultHandler {
                                               new File("resources/decs/main/"));
         final Directory indexDirCode = FSDirectory.open(
                                               new File("resources/decs/code/"));
-        final IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_4_9,
+        final IndexWriterConfig conf = new IndexWriterConfig(
+                                                   Version.LUCENE_4_10_0,
                                                    new SimpleKeywordAnalyzer());
         
         attributeMap = new HashMap<String,String>();
@@ -227,7 +228,6 @@ public class IndexDecs extends DefaultHandler {
     }
     
     public static void main(String args[]) throws Exception {
-        final IndexDecs index = 
-                          new IndexDecs("resources/decs/xml/decs-metadata.xml");        
+        new IndexDecs("resources/decs/xml/decs-metadata.xml");        
     }
 }

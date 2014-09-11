@@ -22,7 +22,6 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -109,7 +108,7 @@ public class AnalyzerUtils {
         while (stream.incrementToken()) {
             final int increment = posIncr.getPositionIncrement();
             if (increment > 0) {
-                position = position + increment;
+                position += increment;
                 System.out.println();
                 System.out.print(position + ": ");
             }
@@ -139,7 +138,7 @@ public class AnalyzerUtils {
         while (stream.incrementToken()) {                                  // #C
             final int increment = posIncr.getPositionIncrement();          // #D
             if (increment > 0) {                                           // #D
-                position = position + increment;                           // #D
+                position += increment;                           // #D
                 System.out.println();                                      // #D
                 System.out.print(position + ": ");                         // #D
             }
@@ -174,12 +173,12 @@ public class AnalyzerUtils {
 
     public static void main(String[] args) throws IOException {
         System.out.println("SimpleAnalyzer");
-        displayTokensWithFullDetails(new SimpleAnalyzer(Version.LUCENE_4_9),
+        displayTokensWithFullDetails(new SimpleAnalyzer(),
         "The quick brown fox....");
 
         System.out.println("\n----");
         System.out.println("StandardAnalyzer");
-        displayTokensWithFullDetails(new StandardAnalyzer(Version.LUCENE_4_9),
+        displayTokensWithFullDetails(new StandardAnalyzer(),
         "I'll email you at xyz@example.com");
     }
 }
