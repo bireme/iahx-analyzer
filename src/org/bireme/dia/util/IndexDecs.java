@@ -49,7 +49,7 @@ public class IndexDecs extends DefaultHandler {
         final Directory indexDirCode = FSDirectory.open(
                                               new File("resources/decs/code/"));
         final IndexWriterConfig conf = new IndexWriterConfig(
-                                                   Version.LUCENE_4_10_0,
+                                                   Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
         
         attributeMap = new HashMap<String,String>();

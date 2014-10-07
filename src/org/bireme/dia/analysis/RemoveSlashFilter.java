@@ -33,7 +33,8 @@ public class RemoveSlashFilter extends TokenFilter {
             if ( invalidChars.indexOf(c) >= 0 ) {
                 //Do Nothing, (drop the character)
             } else {
-                buffer[upto++] = c;
+                buffer[upto] = c;
+                upto++;
             }
         }
 

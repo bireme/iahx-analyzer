@@ -89,7 +89,7 @@ public class DeCSEngine implements SynonymEngine {
                 synList.addAll(extractKeyValues(decsQlf));
             }
             if (onlyQualifiers) {
-                return (String[]) synList.toArray(new String[0]);
+                return synList.toArray(new String[0]);
             }
         }
 
@@ -133,7 +133,7 @@ public class DeCSEngine implements SynonymEngine {
             }
         }
 
-        return (String[]) synList.toArray(new String[0]);
+        return synList.toArray(new String[0]);
     }
 
     private Document decsKey(final String code,
@@ -160,12 +160,18 @@ public class DeCSEngine implements SynonymEngine {
         final List<String> keyValues = Arrays.asList(key.getValues("descriptor"));
 
         // add descriptor synonymous in search keys
-        if (addSyn) {
-            keyValues.addAll(Arrays.asList(key.getValues("syn")));
+        if (addSyn) {            
+            //keyValues.addAll(Arrays.asList(key.getValues("syn")));
+            for (String val : key.getValues("syn")) {
+                keyValues.add(val);
+            }
         }
         // add descriptor category in search keys
         if (addCategory) {
-            keyValues.addAll(Arrays.asList(key.getValues("category")));
+            //keyValues.addAll(Arrays.asList(key.getValues("category")));
+            for (String val : key.getValues("category")) {
+                keyValues.add(val);
+            }
         }
 
         return keyValues;

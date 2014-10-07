@@ -59,11 +59,13 @@ public class DecsSyn {
     }
     
     public ArrayList<String> getCategory() {
-        return category;
+        //return category;
+        return new ArrayList<String>(category);
     }
     
     public ArrayList<String> getDescriptor() {
-        return descriptor;
+        //return descriptor;
+        return new ArrayList<String>(descriptor);
     }
     
     /*
@@ -84,6 +86,7 @@ public class DecsSyn {
     }
     
     public ArrayList<String> getSynonym() {
-        return synonym;
+        //return synonym;
+        return new ArrayList<String>(synonym);
     }    
 }
