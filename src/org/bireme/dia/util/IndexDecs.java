@@ -14,6 +14,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -48,46 +49,39 @@ public class IndexDecs extends DefaultHandler {
                                               new File("resources/decs/main/"));
         final Directory indexDirCode = FSDirectory.open(
                                               new File("resources/decs/code/"));
-        final IndexWriterConfig conf = new IndexWriterConfig(
+
+        IndexWriterConfig iwcMain = new IndexWriterConfig(
                                                    Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
-        
+
+        IndexWriterConfig iwcCode = new IndexWriterConfig(
+                                                   Version.LUCENE_4_10_1,
+                                                   new SimpleKeywordAnalyzer());
+
         attributeMap = new HashMap<String,String>();
         elementBuffer = new StringBuilder();
-        
-        System.out.println("xml :" + xml);
-        
-        writerMain = new IndexWriter(indexDirMain, conf);
-        /*
-            The default MergePolicy is now TieredMergePolicy since moving from 
-            Lucene 3.1 to Lucene 3.4, and to set merge factor policy we have to 
-            set two options maxMergeAtOnce and segmentsPerTier on the plicy 
-            itself, do we need this ?             
-        */
-        //writerMain.setMergeFactor(100);
 
-        writerCode = new IndexWriter(indexDirCode, conf);
-        //writerCode.setMergeFactor(100);
+        // Create a new index in the directory, removing any
+        // previously indexed documents:
+        iwcMain.setOpenMode(OpenMode.CREATE);
+        iwcCode.setOpenMode(OpenMode.CREATE);
+        
+        writerMain = new IndexWriter(indexDirMain, iwcMain);
+
+        writerCode = new IndexWriter(indexDirCode, iwcCode);
 
         try {                        
-            System.out.println("Indexing ...");
+            System.out.println("Indexing " + xml);
             
             final Date start = new Date();
             
             indexTerms(xml);
             
-            //System.out.println("Optimizing index...");     
-            /*
-              Deprecated.
-              This method has been deprecated, as it is horribly inefficient and
-              very rarely justified. Lucene's multi-segment search performance 
-              has improved over time, and the default TieredMergePolicy now 
-              targets segments with deletions.
-            */ 
-            //writerMain.optimize();
+            System.out.println("Optimizing index...");     
+            writerMain.forceMerge(1);
             writerMain.close();
             
-            //writerCode.optimize();
+            writerCode.forceMerge(1);
             writerCode.close();
             
             System.out.println((new Date()).getTime() - start.getTime() 
