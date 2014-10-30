@@ -156,22 +156,21 @@ public class DeCSEngine implements SynonymEngine {
     }
 
     private List<String> extractKeyValues(final Document key) {
-        // add authorized terms in 3 languages
-        final List<String> keyValues = Arrays.asList(key.getValues("descriptor"));
+        final List<String> keyValues = new ArrayList<String>();
+        
+        // add authorized terms in 3 languages        
+        for (String val : key.getValues("descriptor")) {
+            keyValues.add(val);
+        }       
 
         // add descriptor synonymous in search keys
         if (addSyn) {            
-            //keyValues.addAll(Arrays.asList(key.getValues("syn")));
-            for (String val : key.getValues("syn")) {
-                keyValues.add(val);
-            }
+            keyValues.addAll(Arrays.asList(key.getValues("syn")));
         }
+
         // add descriptor category in search keys
         if (addCategory) {
-            //keyValues.addAll(Arrays.asList(key.getValues("category")));
-            for (String val : key.getValues("category")) {
-                keyValues.add(val);
-            }
+            keyValues.addAll(Arrays.asList(key.getValues("category")));
         }
 
         return keyValues;

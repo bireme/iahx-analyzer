@@ -5,6 +5,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 
 /**
@@ -16,8 +17,9 @@ public class SimpleKeywordAnalyzer extends Analyzer {
     protected TokenStreamComponents createComponents(final String fieldName,
                                                      final Reader reader) {
         final Tokenizer source = new KeywordTokenizer(reader);
-        final TokenStream filter = new ASCIIFoldingFilter(source);
+        final TokenStream filter1 = new ASCIIFoldingFilter(source);
+        final TokenStream filter2 = new LowerCaseFilter(filter1);
 
-        return new TokenStreamComponents(source, filter);
+        return new TokenStreamComponents(source, filter2);
     }
 }
