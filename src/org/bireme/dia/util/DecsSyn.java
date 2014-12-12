@@ -1,6 +1,10 @@
 package org.bireme.dia.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -8,21 +12,27 @@ import java.util.ArrayList;
  * date: 20060721
  */
 public class DecsSyn {    
-    private final ArrayList<String> category;
-    private final ArrayList<String> descriptor;
-    private final ArrayList<String> synonym;
+    private final Set<String> category;
+    private final List<String> descriptor;
+    private final Set<String> synonym;
     private String id;
     private String treeId;
     private String abbreviation;
     
     /** Creates a new instance of Term */
     public DecsSyn() {
-        category = new ArrayList<String>();
+        category = new TreeSet<String>();
         descriptor = new ArrayList<String>();
-        synonym = new ArrayList<String>();
+        synonym = new TreeSet<String>();
     }
     
-    void setId(String id) {
+    public void clear() {
+        category.clear();
+        descriptor.clear();
+        synonym.clear();
+    }
+    
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -38,8 +48,8 @@ public class DecsSyn {
         this.category.add(category);
     }
     
-    public void addDescriptor(String desc) {
-        this.descriptor.add(desc);
+    public void addDescriptor(String descriptor) {
+        this.descriptor.add(descriptor);
     }
     
     public void addSynonym(String synonym) {
@@ -58,12 +68,12 @@ public class DecsSyn {
         return treeId;
     }
     
-    public ArrayList<String> getCategory() {
+    public Set<String> getCategory() {
         //return category;
-        return new ArrayList<String>(category);
+        return new HashSet<String>(category);
     }
     
-    public ArrayList<String> getDescriptor() {
+    public List<String> getDescriptor() {
         //return descriptor;
         return new ArrayList<String>(descriptor);
     }
@@ -75,18 +85,20 @@ public class DecsSyn {
         final String desc;
         
         if (lang.equals("en")) {
-            desc = this.descriptor.get(0);
+            desc = descriptor.get(0);
         } else if (lang.equals("es")) {
             desc = this.descriptor.get(1);
-        } else {
+        } else if (lang.equals("pt")) {
             desc = this.descriptor.get(2);
+        } else {
+            desc = null;
         }
         
         return desc;
     }
     
-    public ArrayList<String> getSynonym() {
+    public Set<String> getSynonym() {
         //return synonym;
-        return new ArrayList<String>(synonym);
+        return new HashSet<String>(synonym);
     }    
 }

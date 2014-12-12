@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -37,11 +38,11 @@ public class IndexDecs extends DefaultHandler {
     private final IndexWriter writerMain;         //writer do indice principal
     private final IndexWriter writerCode;         //writer do indice que realiza encode/decode de descritores
     
-    private StringBuilder path;    
-    private DecsSyn decsSyn;
+    private final DecsSyn decsSyn;
+    private final StringBuilder path;        
+    private final Analyzer analyzer;
     
-    public IndexDecs(String xml) throws IOException /*throws Exception*/ {
-        
+    public IndexDecs(final String xml) throws IOException /*throws Exception*/ {        
         
         final ClassLoader loader = this.getClass().getClassLoader();
         final URL dirUrl = loader.getResource("./"); // get current directory of classes        
@@ -50,17 +51,20 @@ public class IndexDecs extends DefaultHandler {
         final Directory indexDirCode = FSDirectory.open(
                                               new File("resources/decs/code/"));
 
-        IndexWriterConfig iwcMain = new IndexWriterConfig(
+        final IndexWriterConfig iwcMain = new IndexWriterConfig(
                                                    Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
 
-        IndexWriterConfig iwcCode = new IndexWriterConfig(
+        final IndexWriterConfig iwcCode = new IndexWriterConfig(
                                                    Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
 
         attributeMap = new HashMap<String,String>();
         elementBuffer = new StringBuilder();
-
+        decsSyn = new DecsSyn();
+        path = new StringBuilder("/");
+        analyzer = new SimpleKeywordAnalyzer();
+        
         // Create a new index in the directory, removing any
         // previously indexed documents:
         iwcMain.setOpenMode(OpenMode.CREATE);
@@ -105,7 +109,7 @@ public class IndexDecs extends DefaultHandler {
             
             reader.setEntityResolver(null);
             reader.setContentHandler(this);
-            reader.parse(xmlInput);            
+            reader.parse(xmlInput); 
         } catch(Exception ex){
             ex.printStackTrace();
         }
@@ -113,7 +117,6 @@ public class IndexDecs extends DefaultHandler {
     
     @Override
     public void startDocument() {
-        path = new StringBuilder("/");
         attributeMap.clear();
     }
     
@@ -126,7 +129,7 @@ public class IndexDecs extends DefaultHandler {
         path.append(qName).append("/");
         
         if (qName.equals("term")) {
-            decsSyn = new DecsSyn();
+            decsSyn.clear();
             decsSyn.setId(atts.getValue("mfn"));
         }
         
@@ -185,37 +188,39 @@ public class IndexDecs extends DefaultHandler {
         
         // adiciona categorias do descritor
         for (String category : decs.getCategory()) {
-            doc.add(new StoredField("category", category));
+            doc.add(new StoredField("category", 
+                                  AnalyzerUtils.getTokens(analyzer, category)));
         }      
         // adiciona o descritor nos 3 idiomas
         for (String descriptor : decs.getDescriptor()) {
-            doc.add(new TextField("descriptor", descriptor, Field.Store.YES));
-        }
-        // adiciona o descritor nos 3 idiomas sem tokenize
-        for (String descriptor : decs.getDescriptor()) {
-            doc.add(new StringField("descriptor_full", descriptor, 
-                                                              Field.Store.YES));
+            doc.add(new TextField("descriptor", 
+                                  AnalyzerUtils.getTokens(analyzer, descriptor),
+                                  Field.Store.YES));
         }
         // adiciona sinonimos nos 3 idiomas
         for (String synonym : decs.getSynonym()) {
-            doc.add(new TextField("syn", synonym, Field.Store.YES) );
+            doc.add(new TextField("syn", 
+                                  AnalyzerUtils.getTokens(analyzer, synonym),
+                                  Field.Store.YES) );
         }        
         // adiciona abreviacao dos qualificadores (diagnostico = di)
         if (decs.getAbbreviation() != null) {
-            doc.add(new StringField("abbreviation", decs.getAbbreviation(), 
-                                                              Field.Store.YES));
+            doc.add(new StringField("abbreviation", 
+                      AnalyzerUtils.getTokens(analyzer, decs.getAbbreviation()), 
+                                    Field.Store.YES));
         }
         
         writerMain.addDocument(doc);
         
         // monta indice para encode/decode de termos DeCS
-        final Document encodeDoc;encodeDoc = new Document();
+        final Document encodeDoc = new Document();
         encodeDoc.add(new StringField("id", decs.getId(), Field.Store.YES));
         
         // adiciona o descritor nos 3 idiomas
         for (String descriptor : decs.getDescriptor()) {
-            encodeDoc.add(new TextField("descriptor", descriptor, 
-                                                              Field.Store.YES));
+            encodeDoc.add(new TextField("descriptor", 
+                                  AnalyzerUtils.getTokens(analyzer, descriptor),
+                                        Field.Store.YES));
         }
         
         writerCode.addDocument(encodeDoc);        

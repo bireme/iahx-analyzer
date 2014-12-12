@@ -38,7 +38,7 @@ public class DeCSSimpleAnalyzer extends Analyzer {
                                                                  WORDS, PRECOD);
         final TokenStream filter4 = new LowerCaseFilter(filter3);
         final TokenStream filter5 = new ASCIIFoldingFilter(filter4);
-
+        
         return new TokenStreamComponents(source, filter5);
     }
 }

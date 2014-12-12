@@ -22,8 +22,10 @@ public class TestAnalyzers {
         System.out.println("text to be analyzed: " + text);
 
         System.out.println("DeCSStandardAnalyzer");
+        //AnalyzerUtils.displayTokensWithPositions(new DeCSStandardAnalyzer(), text);
         AnalyzerUtils.displayTokensWithFullDetails(
                                               new DeCSStandardAnalyzer(), text);
+        //AnalyzerUtils.displayTokens(new DeCSStandardAnalyzer(), text);
        
 /*
         System.out.println("BVSStandardAnalyzer");

@@ -40,7 +40,7 @@ public class BVSStandardAnalyzer extends Analyzer {
         final TokenStream filter4 = new LowerCaseFilter(filter3);
         final TokenStream filter5 = new ASCIIFoldingFilter(filter4);
         final TokenStream filter6 = new PunctuationFilter(filter5);
-
+        
         return new TokenStreamComponents(source, filter6);
     }
 }

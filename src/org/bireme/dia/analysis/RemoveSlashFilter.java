@@ -18,28 +18,30 @@ public class RemoveSlashFilter extends TokenFilter {
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
-        if (!input.incrementToken()) {
-            return false;
-        }
-        final int length = termAtt.length();
-        final char[] buffer = termAtt.buffer();
-        final String invalidChars = "/";
-        int upto = 0;
+    public final boolean incrementToken() throws IOException {
+        final boolean ret;
+        
+        if (input.incrementToken()) {
+            final int length = termAtt.length();
+            final char[] buffer = termAtt.buffer();
+            final char invalidChar = '/';
+            int upto = 0;
 
-        for (int i = 0; i < length; i++) {
-            final char c = buffer[i];
+            for (int i = 0; i < length; i++) {
+                final char c = buffer[i];
 
-            if ( invalidChars.indexOf(c) >= 0 ) {
-                //Do Nothing, (drop the character)
-            } else {
-                buffer[upto] = c;
-                upto++;
+                if (c != invalidChar) {
+                    buffer[upto] = c;
+                    upto++;
+                }
             }
+            termAtt.setLength(upto);
+            ret = true;
+        } else {
+            input.end();
+            ret = false;
         }
-
-        termAtt.setLength(upto);
-
-        return true;
-    }
+        
+        return ret;
+    }    
 }

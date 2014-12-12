@@ -21,8 +21,7 @@
                <descriptor>Matadouros</descriptor>
           </descriptor_list>
           <synonym_list>
-               <synonym>Abatedouros</synonym>
-               
+               <synonym>Abatedouros</synonym>               
                <synonym>Slaughterhouses</synonym>
           </synonym_list>
      </term>
@@ -101,5 +100,16 @@
                <synonym>Tumores do Abdome</synonym>
                <synonym>Tumores Abdominales</synonym>
           </synonym_list>
+     </term>
+     <term mfn="22062">
+          <category-list>
+               <category>Q50.040.020Q05.010</category>
+          </category-list>
+          <descriptor_list>
+               <descriptor>/blood</descriptor>
+               <descriptor>/sangre</descriptor>
+               <descriptor>/sangue</descriptor>
+          </descriptor_list>
+          <abbreviation>BL</abbreviation>
      </term>
 </decs-syn-list>
