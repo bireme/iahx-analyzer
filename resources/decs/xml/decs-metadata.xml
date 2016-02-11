@@ -102,4 +102,19 @@
                <synonym>Tumores Abdominales</synonym>
           </synonym_list>
      </term>
+     <term mfn="9">
+          <category-list>
+               <category>G11.427.590.530.698.277.061</category>
+          </category-list>
+          <descriptor_list>
+               <descriptor>Circuit-Based Exercise</descriptor>
+               <descriptor>Ejercicio en Circuitos</descriptor>
+               <descriptor>Exercícios em Circuitos</descriptor>
+          </descriptor_list>
+          <synonym_list>
+               <synonym>Exercises, Circuit-Based</synonym>
+               <synonym>Ejercicio Basado en Circuito</synonym>
+               <synonym>Exercícios Baseados em Circuitos</synonym>
+          </synonym_list>
+     </term>
 </decs-syn-list>
