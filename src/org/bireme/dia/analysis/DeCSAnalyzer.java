@@ -1,7 +1,6 @@
 package org.bireme.dia.analysis;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.net.URL;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -24,14 +23,19 @@ public class DeCSAnalyzer extends Analyzer {
         final ClassLoader loader = this.getClass().getClassLoader();
         final URL dirUrl = loader.getResource("./"); // get current directory of classes
 
-        engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF,
-                                                                       ONLYQLF);
+        try {
+            engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, 
+                                                               KEYQLF, ONLYQLF);
+        } catch (Exception ioe) {
+            System.err.println("dirUrl=" + dirUrl);
+            System.err.println("error=" + ioe.toString());
+            throw(ioe);
+        }
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName,
-                                                     final Reader reader) {
-        final Tokenizer source = new KeywordTokenizer(reader);
+    protected TokenStreamComponents createComponents(final String fieldName) {
+        final Tokenizer source = new KeywordTokenizer();
         final TokenStream filter1 = new ASCIIFoldingFilter(source);
         final TokenStream filter2 = new LowerCaseFilter(filter1);
         final TokenStream filter3 = new SynonymFilter(filter2, engine,

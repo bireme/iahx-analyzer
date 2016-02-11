@@ -6,7 +6,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
- *
+ * Remove o caracter / do token.
  * @author vinicius
  */
 public class RemoveSlashFilter extends TokenFilter {
@@ -18,7 +18,7 @@ public class RemoveSlashFilter extends TokenFilter {
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
+    public final boolean incrementToken() throws IOException {
         if (!input.incrementToken()) {
             return false;
         }

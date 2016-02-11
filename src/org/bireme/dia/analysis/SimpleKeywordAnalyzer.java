@@ -1,6 +1,5 @@
 package org.bireme.dia.analysis;
 
-import java.io.Reader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -14,9 +13,8 @@ import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
  */
 public class SimpleKeywordAnalyzer extends Analyzer {
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName,
-                                                     final Reader reader) {
-        final Tokenizer source = new KeywordTokenizer(reader);
+    protected TokenStreamComponents createComponents(final String fieldName) {
+        final Tokenizer source = new KeywordTokenizer();
         final TokenStream filter1 = new ASCIIFoldingFilter(source);
         final TokenStream filter2 = new LowerCaseFilter(filter1);
 

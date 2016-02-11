@@ -17,7 +17,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.bireme.dia.analysis.SimpleKeywordAnalyzer;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -46,16 +45,14 @@ public class IndexDecs extends DefaultHandler {
         final ClassLoader loader = this.getClass().getClassLoader();
         final URL dirUrl = loader.getResource("./"); // get current directory of classes        
         final Directory indexDirMain = FSDirectory.open(
-                                              new File("resources/decs/main/"));
+                                     new File("resources/decs/main/").toPath());
         final Directory indexDirCode = FSDirectory.open(
-                                              new File("resources/decs/code/"));
+                                     new File("resources/decs/code/").toPath());
 
         IndexWriterConfig iwcMain = new IndexWriterConfig(
-                                                   Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
 
         IndexWriterConfig iwcCode = new IndexWriterConfig(
-                                                   Version.LUCENE_4_10_1,
                                                    new SimpleKeywordAnalyzer());
 
         attributeMap = new HashMap<String,String>();

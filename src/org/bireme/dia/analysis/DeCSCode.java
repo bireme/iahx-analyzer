@@ -25,7 +25,8 @@ public class DeCSCode {
         final URL dirUrl = loader.getResource("./"); // get current directory of classes
         final File indexDir = new File("resources/decs/code");
         final RAMDirectory ramDir = new RAMDirectory(
-                                    FSDirectory.open(indexDir), IOContext.READ);
+                                    FSDirectory.open(indexDir.toPath()), 
+                                                     IOContext.READ);
         final DirectoryReader reader = DirectoryReader.open(ramDir);
 
         decs = new IndexSearcher(reader);
@@ -54,9 +55,9 @@ public class DeCSCode {
 
     public String getDescriptorTerm(final String code,
                                     final String lang) throws IOException {
-        final PhraseQuery query = new PhraseQuery();
-        query.add(new Term("id", code));
-
+        final PhraseQuery.Builder builder = new PhraseQuery.Builder()
+                                                     .add(new Term("id", code));
+        final PhraseQuery query = builder.build();
         final TopDocs hits = decs.search(query, 1);
         String ret = null;
 

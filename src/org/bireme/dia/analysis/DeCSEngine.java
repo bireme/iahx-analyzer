@@ -38,7 +38,8 @@ public class DeCSEngine implements SynonymEngine {
 
         final File indexDir = new File(indexPath);
         final RAMDirectory ramDir = new RAMDirectory(
-                                    FSDirectory.open(indexDir), IOContext.READ);
+                                    FSDirectory.open(indexDir.toPath()), 
+                                                     IOContext.READ);
         final DirectoryReader reader = DirectoryReader.open(ramDir);
 
         searcher = new IndexSearcher(reader);
@@ -138,13 +139,13 @@ public class DeCSEngine implements SynonymEngine {
 
     private Document decsKey(final String code,
                              final String index) throws IOException {
-        final PhraseQuery query = new PhraseQuery();
-        Document key = null;
-
         // remove zeros a esquerda do codigo para match com indice de ID do DeCS
         final String code2 = code.replaceAll("^0*","");
-
-        query.add(new Term(index, code2));
+        
+        final PhraseQuery.Builder builder = new PhraseQuery.Builder()
+                                                   .add(new Term(index, code2));
+        final PhraseQuery query = builder.build();
+        Document key = null;
 
         final TopDocs hits = searcher.search(query, 1);
         if (hits.totalHits > 0) {

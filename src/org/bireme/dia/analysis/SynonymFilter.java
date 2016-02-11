@@ -39,7 +39,7 @@ public class SynonymFilter extends TokenFilter {
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
+    public final boolean incrementToken() throws IOException {
     if (! synonymStack.isEmpty()) {
             final String syn = synonymStack.pop();
             restoreState(current);

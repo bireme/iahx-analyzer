@@ -4,7 +4,6 @@ import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
-import java.io.Reader;
 import java.net.URL;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
@@ -29,9 +28,8 @@ public class DeCSSimpleAnalyzer extends Analyzer {
     }
 
     @Override
-    protected TokenStreamComponents createComponents(final String fieldName,
-                                                     final Reader reader) {
-        final Tokenizer source = new KeywordTokenizer(reader);
+    protected TokenStreamComponents createComponents(final String fieldName) {
+        final Tokenizer source = new KeywordTokenizer();
         final TokenStream filter1 = new ASCIIFoldingFilter(source);
         final TokenStream filter2 = new LowerCaseFilter(filter1);
         final TokenStream filter3 = new SynonymFilter(filter2, engine,
