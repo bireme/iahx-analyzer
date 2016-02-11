@@ -6,7 +6,10 @@ import java.io.InputStreamReader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.KeywordTokenizer;
+import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 
 /**
@@ -21,37 +24,44 @@ class MyAnalyzer extends Analyzer {
         wordDelimiterConfig = 
         WordDelimiterFilter.GENERATE_WORD_PARTS +
         WordDelimiterFilter.GENERATE_NUMBER_PARTS +
-        WordDelimiterFilter.CATENATE_WORDS +
-        WordDelimiterFilter.CATENATE_NUMBERS +
-        WordDelimiterFilter.PRESERVE_ORIGINAL;
+        //WordDelimiterFilter.CATENATE_WORDS +
+        //WordDelimiterFilter.CATENATE_NUMBERS +
+        WordDelimiterFilter.SPLIT_ON_NUMERICS +
+        WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
+        WordDelimiterFilter.CATENATE_ALL;        
+        //WordDelimiterFilter.PRESERVE_ORIGINAL;
     }
 
     @Override
     protected Analyzer.TokenStreamComponents createComponents(
                                                    final String fieldName) {
         final Tokenizer source = new WhitespaceTokenizer();
-        final TokenStream filter =  new WordDelimiterFilter(source, 
+        final TokenStream filter1 = new ASCIIFoldingFilter(source);
+        final TokenStream filter2 = new LowerCaseFilter(filter1);
+        final TokenStream filter3 =  new WordDelimiterFilter(filter2, 
                                                  wordDelimiterConfig, null);
-
-        return new Analyzer.TokenStreamComponents(source, filter);
+        
+        return new Analyzer.TokenStreamComponents(source, filter3);
     }
 }
 
 public class TestWordDelimiterFilter {        
     public static void main(String[] args) throws IOException {
         
-        System.out.print("Please enter text to be filtered: ");
+        System.out.print("Please enter text to be tokenzided and filtered: ");
         
         final BufferedReader stdin = new BufferedReader(
                                              new InputStreamReader(System.in) );
         String text = stdin.readLine( );        
         if (text.equals("")){
-            text = "^d30600^s22031 ^d4250 Malária em Países da america Do SuL 0329023,0099 &878922 abel, laerte packer; tardelli, adalberto fim-de-semana-2016";
+            text = "^d30600^s22031 ^d4250 Malária em Países da america Do SuL 0329023,0099 &878922" +
+                    "\n abel, laerte packer; tardelli, adalberto (fim-de-semana-2016 'inesquecível')" +
+                    "\n ponto final. ponto e vírgula; barra/ interrogacao?";
         }
         
-        System.out.println("text to be filtered: " + text);
+        System.out.println("\ntext to be tokenized and filtered: " + text);
 
-        System.out.println("WhitepaceTokenizer + WordDelimiterFilter");
-        AnalyzerUtils.displayTokensWithFullDetails(new MyAnalyzer(), text);       
+        System.out.println("\nWhitepaceTokenizer + WordDelimiterFilter");
+        AnalyzerUtils.displayTokens(new MyAnalyzer(), text);       
     }
 }

@@ -27,6 +27,7 @@ public class AnalyzerUtils {
     public static void displayTokens(TokenStream stream) throws IOException {
     
         CharTermAttribute term = stream.addAttribute(CharTermAttribute.class);
+        stream.reset();
         while (stream.incrementToken()) {
             System.out.println("[" + term.toString() + "] ");
         }    
@@ -42,6 +43,7 @@ public class AnalyzerUtils {
                                 .addAttribute(PositionIncrementAttribute.class);
     
         int position = 0;
+        stream.reset();
         while (stream.incrementToken()) {     
             int increment = posIncr.getPositionIncrement();
             if (increment > 0) {
