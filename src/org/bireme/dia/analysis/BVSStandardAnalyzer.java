@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterIterator;
 
 public class BVSStandardAnalyzer extends Analyzer {
     public static final boolean WORDS = true;
@@ -21,18 +22,31 @@ public class BVSStandardAnalyzer extends Analyzer {
 
     private final SynonymEngine engine;
     private final int wordDelimiterConfig;
+    private final byte[] table;
 
     public BVSStandardAnalyzer() throws IOException {
         final ClassLoader loader = this.getClass().getClassLoader();
         final URL dirUrl = loader.getResource("./"); // get current directory of classes
-
+        
+        table = new byte[256];        
+        for (int pos = 0; pos < 256; pos++) {
+            if (pos == 32) {            
+                table[pos] = 4;  // Não delimita em espaços
+            } else if (pos == 45) { 
+                table[pos] = 1;  // Não delimita em hifens    
+            } else if (pos == 46) { 
+                table[pos] = 1;  // Não delimita em pontos
+            } else {
+                table[pos] = WordDelimiterIterator.DEFAULT_WORD_DELIM_TABLE[pos];
+            }
+        }
         engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF,
                                                                        ONLYQLF);
         wordDelimiterConfig = WordDelimiterFilter.GENERATE_WORD_PARTS +
                                   WordDelimiterFilter.GENERATE_NUMBER_PARTS +
                                 //WordDelimiterFilter.CATENATE_WORDS +
                                 //WordDelimiterFilter.CATENATE_NUMBERS +
-                                  WordDelimiterFilter.SPLIT_ON_NUMERICS +
+                                  //WordDelimiterFilter.SPLIT_ON_NUMERICS +
                                   WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
                                   WordDelimiterFilter.CATENATE_ALL;        
                                 //WordDelimiterFilter.PRESERVE_ORIGINAL;
@@ -45,11 +59,14 @@ public class BVSStandardAnalyzer extends Analyzer {
         final TokenStream filter2 = new LowerCaseFilter(filter1);
         final TokenStream filter3 = new SynonymFilter(filter2, engine,
                                                                  WORDS, PRECOD);
-        final TokenStream filter4 =  new WordDelimiterFilter(filter3, 
-                                                 wordDelimiterConfig, null);        
-        final TokenStream filter5 = new LowerCaseFilter(filter4);
-        final TokenStream filter6 = new ASCIIFoldingFilter(filter5);
+        //final TokenStream filter4 =  new WordDelimiterFilter(filter3, 
+        //                                         wordDelimiterConfig, null);        
+        final TokenStream filter4 =  new WordDelimiterFilter(filter3, table, 
+                                                     wordDelimiterConfig, null);
+        final TokenStream filter5 = new TrimFilter(filter4);
+        final TokenStream filter6 = new LowerCaseFilter(filter5);
+        final TokenStream filter7 = new ASCIIFoldingFilter(filter6);
 
-        return new TokenStreamComponents(source, filter6);
+        return new TokenStreamComponents(source, filter7);
     }
 }

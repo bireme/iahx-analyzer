@@ -45,7 +45,7 @@ public class SynonymFilter extends TokenFilter {
             restoreState(current);
 
             termAtt.setEmpty();
-            termAtt.append(syn);
+            termAtt.append(syn.trim());
             //posIncrAtt.setPositionIncrement(0);
             return true;
     }

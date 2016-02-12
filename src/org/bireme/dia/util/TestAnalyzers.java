@@ -16,19 +16,21 @@ public class TestAnalyzers {
         String text = stdin.readLine( );        
         if (text.equals("")){
             //text = "^d30600^s22031 ^d4250 MalAria em PAIses da america Do SuL 0329023,0099 &878922 abel, laerte packer; tardelli, adalberto";
-            text = "^d3727";
+            //text = "^d3727";
+            text = "^d9";
         }
         
         System.out.println("text to be analyzed: " + text);
 
+        /*
         System.out.println("DeCSStandardAnalyzer");
         AnalyzerUtils.displayTokensWithFullDetails(
                                               new DeCSStandardAnalyzer(), text);
+        */
        
-/*
         System.out.println("BVSStandardAnalyzer");
-        AnalyzerUtils.displayTokensWithFullDetails(new BVSStandardAnalyzer(), text);
-        
+        AnalyzerUtils.displayTokens(new BVSStandardAnalyzer(), text);
+       /* 
         System.out.println("BVSStandardAnalyzer");
         AnalyzerUtils.displayTokensWithFullDetails(new BVSStandardAnalyzer(), text);
 

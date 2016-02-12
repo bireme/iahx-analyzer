@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.core.KeywordTokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterIterator;
 
 /**
  *
@@ -29,7 +29,7 @@ class MyAnalyzer extends Analyzer {
         WordDelimiterFilter.SPLIT_ON_NUMERICS +
         WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
         WordDelimiterFilter.CATENATE_ALL;        
-        //WordDelimiterFilter.PRESERVE_ORIGINAL;
+        //WordDelimiterFilter.PRESERVE_ORIGINAL;        
     }
 
     @Override
@@ -46,8 +46,13 @@ class MyAnalyzer extends Analyzer {
 }
 
 public class TestWordDelimiterFilter {        
-    public static void main(String[] args) throws IOException {
-        
+    public static void main(String[] args) throws IOException {        
+        /*
+        int i=0;
+        for (byte b : WordDelimiterIterator.DEFAULT_WORD_DELIM_TABLE) {
+            System.out.println("[" + (++i) + "[" + (int)b + "]]");
+        }
+        */        
         System.out.print("Please enter text to be tokenzided and filtered: ");
         
         final BufferedReader stdin = new BufferedReader(
