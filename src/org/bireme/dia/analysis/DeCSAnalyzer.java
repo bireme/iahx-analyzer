@@ -26,7 +26,7 @@ public class DeCSAnalyzer extends Analyzer {
         try {
             engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, 
                                                                KEYQLF, ONLYQLF);
-        } catch (Exception ioe) {
+        } catch (IOException ioe) {
             System.err.println("dirUrl=" + dirUrl);
             System.err.println("error=" + ioe.toString());
             throw(ioe);

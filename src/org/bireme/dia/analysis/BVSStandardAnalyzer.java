@@ -32,8 +32,8 @@ public class BVSStandardAnalyzer extends Analyzer {
         for (int pos = 0; pos < 256; pos++) {
             if (pos == 32) {            
                 table[pos] = 4;  // Não delimita em espaços
-            } else if (pos == 45) { 
-                table[pos] = 1;  // Não delimita em hifens    
+            //} else if (pos == 45) {    // VA/HB 20161124
+            //    table[pos] = 1;  // Não delimita em hifens    
             } else if (pos == 46) { 
                 table[pos] = 1;  // Não delimita em pontos
             } else {

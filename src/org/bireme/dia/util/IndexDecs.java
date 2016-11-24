@@ -49,10 +49,10 @@ public class IndexDecs extends DefaultHandler {
         final Directory indexDirCode = FSDirectory.open(
                                      new File("resources/decs/code/").toPath());
 
-        IndexWriterConfig iwcMain = new IndexWriterConfig(
+        final IndexWriterConfig iwcMain = new IndexWriterConfig(
                                                    new SimpleKeywordAnalyzer());
 
-        IndexWriterConfig iwcCode = new IndexWriterConfig(
+        final IndexWriterConfig iwcCode = new IndexWriterConfig(
                                                    new SimpleKeywordAnalyzer());
 
         attributeMap = new HashMap<String,String>();

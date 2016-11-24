@@ -19,7 +19,7 @@ public class TrimFilter extends TokenFilter {
     public TrimFilter(final TokenStream input) {
         super(input);
         this.termAtt = addAttribute(CharTermAttribute.class);
-        invalidChars = new HashSet<>();
+        invalidChars = new HashSet<Character>();
         invalidChars.add(' ');
         invalidChars.add('-');
         invalidChars.add('.');        

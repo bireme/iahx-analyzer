@@ -117,4 +117,48 @@
                <synonym>Exercícios Baseados em Circuitos</synonym>
           </synonym_list>
      </term>
+     <term mfn="22062">
+          <category-list>
+               <category>Q50.040.020Q05.010</category>
+          </category-list>
+          <descriptor_list>
+               <descriptor>/blood</descriptor>
+               <descriptor>/sangre</descriptor>
+               <descriptor>/sangue</descriptor>
+          </descriptor_list>
+          <abbreviation>BL</abbreviation>
+     </term>
+     <term mfn="22059">
+          <category-list>
+          <category>Q65.050</category>
+          </category-list>
+          <descriptor_list>
+               <descriptor>/radiotherapy</descriptor>
+               <descriptor>/radioterapia</descriptor>
+               <descriptor>/radioterapia</descriptor>
+          </descriptor_list>
+          <abbreviation>RT</abbreviation>
+          <synonym_list>
+               <synonym>/terapia por raios X</synonym>
+               <synonym>/terapia por radiação</synonym>
+               <synonym>/terapia por radioisótopos</synonym>
+               <synonym>/terapia por rayos X</synonym>
+               <synonym>/terapia por radiación</synonym>
+               <synonym>/terapia por radioisótopos</synonym>
+               <synonym>/X-ray therapy</synonym>
+               <synonym>/radiation therapy</synonym>
+               <synonym>/radioisotope therapy</synonym>
+          </synonym_list>
+     </term>
+     <term mfn="22065">
+          <category-list>
+          <category>Q15.040</category>
+          </category-list>
+          <descriptor_list>
+               <descriptor>/chemical synthesis</descriptor>
+               <descriptor>/síntesis química</descriptor>
+               <descriptor>/síntese química</descriptor>
+          </descriptor_list>
+          <abbreviation>CS</abbreviation>
+     </term>
 </decs-syn-list>
