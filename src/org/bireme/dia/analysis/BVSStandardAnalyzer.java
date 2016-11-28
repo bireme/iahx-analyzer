@@ -48,8 +48,8 @@ public class BVSStandardAnalyzer extends Analyzer {
                                 //WordDelimiterFilter.CATENATE_NUMBERS +
                                   //WordDelimiterFilter.SPLIT_ON_NUMERICS +
                                   WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
-                                  WordDelimiterFilter.CATENATE_ALL;        
-                                //WordDelimiterFilter.PRESERVE_ORIGINAL;
+                                  WordDelimiterFilter.CATENATE_ALL +        
+                                  WordDelimiterFilter.PRESERVE_ORIGINAL; // VA/HB 20161128
     }
 
     @Override
