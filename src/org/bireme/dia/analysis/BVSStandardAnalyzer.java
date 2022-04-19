@@ -8,7 +8,7 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterIterator;
 
 public class BVSStandardAnalyzer extends Analyzer {
@@ -42,6 +42,7 @@ public class BVSStandardAnalyzer extends Analyzer {
         }
         engine = new DeCSEngine("resources/decs/main", CATEGORY, SYN, KEYQLF,
                                                                        ONLYQLF);
+        /*
         wordDelimiterConfig = WordDelimiterFilter.GENERATE_WORD_PARTS +
                                   WordDelimiterFilter.GENERATE_NUMBER_PARTS +
                                 //WordDelimiterFilter.CATENATE_WORDS +
@@ -50,8 +51,23 @@ public class BVSStandardAnalyzer extends Analyzer {
                                   WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
                                   WordDelimiterFilter.CATENATE_ALL +        
                                   WordDelimiterFilter.PRESERVE_ORIGINAL; // VA/HB 20161128
+        */
+        
+        wordDelimiterConfig = WordDelimiterGraphFilter.GENERATE_WORD_PARTS +
+                              WordDelimiterGraphFilter.GENERATE_NUMBER_PARTS +
+                              WordDelimiterGraphFilter.STEM_ENGLISH_POSSESSIVE +
+                              WordDelimiterGraphFilter.CATENATE_ALL +        
+                              WordDelimiterGraphFilter.PRESERVE_ORIGINAL; // VA/HB 20161128
     }
 
+    @Override
+    public void close() {
+        try {
+            engine.close();
+            super.close();
+        } catch(IOException ioe) {}
+    }
+    
     @Override
     protected TokenStreamComponents createComponents(final String fieldName) {
         final Tokenizer source = new WhitespaceTokenizer();
@@ -61,8 +77,11 @@ public class BVSStandardAnalyzer extends Analyzer {
                                                                  WORDS, PRECOD);
         //final TokenStream filter4 =  new WordDelimiterFilter(filter3, 
         //                                         wordDelimiterConfig, null);        
-        final TokenStream filter4 =  new WordDelimiterFilter(filter3, table, 
-                                                     wordDelimiterConfig, null);
+        //final TokenStream filter4 =  new WordDelimiterFilter(filter3, table, 
+        //                                             wordDelimiterConfig, null);
+        final TokenStream filter4 =  new WordDelimiterGraphFilter(filter3, false,
+                                           table, wordDelimiterConfig, null);
+        
         final TokenStream filter5 = new TrimFilter(filter4);
         final TokenStream filter6 = new LowerCaseFilter(filter5);
         final TokenStream filter7 = new ASCIIFoldingFilter(filter6);

@@ -13,23 +13,24 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.IOContext;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.MMapDirectory;
 
 public class DeCSCode {
+    private final DirectoryReader reader;
     private final IndexSearcher decs;
 
     public DeCSCode() throws IOException {
         final ClassLoader loader = this.getClass().getClassLoader();
         final URL dirUrl = loader.getResource("./"); // get current directory of classes
         final File indexDir = new File("resources/decs/code");
-        final RAMDirectory ramDir = new RAMDirectory(
-                                    FSDirectory.open(indexDir.toPath()), 
-                                                     IOContext.READ);
-        final DirectoryReader reader = DirectoryReader.open(ramDir);
-
+        final MMapDirectory ramDir = new MMapDirectory(indexDir.toPath());
+        
+        reader = DirectoryReader.open(ramDir);
         decs = new IndexSearcher(reader);
+    }
+
+    public void close() throws IOException {
+        reader.close();
     }
 
     public String getDescritorCode(final String descriptor) throws IOException,
@@ -44,7 +45,7 @@ public class DeCSCode {
             final Query query = qParser.parse(descriptorPhrase);
             final TopDocs hits = decs.search(query, 1);
 
-            if (hits.totalHits > 0){
+            if (hits.totalHits.value > 0){
                 final int docID = hits.scoreDocs[0].doc;
                 final Document doc = decs.doc(docID);
                 descriptorCode = doc.get("id");
@@ -61,7 +62,7 @@ public class DeCSCode {
         final TopDocs hits = decs.search(query, 1);
         String ret = null;
 
-        if (hits.totalHits > 0) {
+        if (hits.totalHits.value > 0) {
             final int docID = hits.scoreDocs[0].doc;
             final Document doc = decs.doc(docID);
             final String[] descriptorTerm = doc.getValues("descriptor");

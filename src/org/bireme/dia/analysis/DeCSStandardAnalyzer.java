@@ -29,6 +29,14 @@ public class DeCSStandardAnalyzer extends Analyzer {
     }
 
     @Override
+    public void close() {
+        try {
+            engine.close();
+            super.close();
+        } catch(IOException ioe) {}
+    }
+
+    @Override
     protected TokenStreamComponents createComponents(final String fieldName) {
         final Tokenizer source = new KeywordTokenizer();
         final TokenStream filter1 = new ASCIIFoldingFilter(source);

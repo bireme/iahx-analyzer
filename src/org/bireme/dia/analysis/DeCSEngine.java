@@ -14,9 +14,10 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.MMapDirectory;
 
 public class DeCSEngine implements SynonymEngine {
+    private final DirectoryReader reader;
     private final IndexSearcher searcher;
 
     // flag para informar se sera gerado chaves com as categorias e sinomimos dos descritores
@@ -37,12 +38,15 @@ public class DeCSEngine implements SynonymEngine {
         this.onlyQualifiers = onlyqlf;
 
         final File indexDir = new File(indexPath);
-        final RAMDirectory ramDir = new RAMDirectory(
-                                    FSDirectory.open(indexDir.toPath()), 
-                                                     IOContext.READ);
-        final DirectoryReader reader = DirectoryReader.open(ramDir);
-
+        final MMapDirectory ramDir = new MMapDirectory(indexDir.toPath());
+        
+        reader = DirectoryReader.open(ramDir);
         searcher = new IndexSearcher(reader);
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 
     @Override
@@ -148,7 +152,7 @@ public class DeCSEngine implements SynonymEngine {
         Document key = null;
 
         final TopDocs hits = searcher.search(query, 1);
-        if (hits.totalHits > 0) {
+        if (hits.totalHits.value > 0) {
             final int docID = hits.scoreDocs[0].doc;
             key = searcher.doc(docID);
         }

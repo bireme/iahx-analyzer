@@ -2,14 +2,19 @@ package org.bireme.dia.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TreeSet;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.SlowCompositeReaderWrapper;
+import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.FieldInfos;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.MultiBits;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.Directory;
@@ -32,7 +37,8 @@ public class Tools {
                                            new File(indexName).toPath());
         final DirectoryReader ireader = DirectoryReader.open(directory);
         
-        final Bits liveDocs = MultiFields.getLiveDocs(ireader);
+        //final Bits liveDocs = MultiFields.getLiveDocs(ireader);
+        final Bits liveDocs = MultiBits.getLiveDocs(ireader);
         for (int i = 0; i < ireader.maxDoc(); i++) {
             if (liveDocs != null && !liveDocs.get(i)) {
                 continue;
@@ -55,8 +61,13 @@ public class Tools {
         final Directory directory = FSDirectory.open(
                                            new File(indexName).toPath());
         final DirectoryReader ireader = DirectoryReader.open(directory);        
-        final Terms terms = SlowCompositeReaderWrapper.wrap(ireader)
-                                                              .terms(fieldName); 
+        //final Terms terms = SlowCompositeReaderWrapper.wrap(ireader)
+        //                                                      .terms(fieldName); 
+        final List<LeafReaderContext> leaves = ireader.leaves(); 
+        if (leaves.isEmpty()) {
+            throw new IOException("empty leaf readers list");
+        }    
+        final Terms terms = leaves.get(0).reader().terms(fieldName);
         final TermsEnum tenum = terms.iterator();
         
         while (true) {

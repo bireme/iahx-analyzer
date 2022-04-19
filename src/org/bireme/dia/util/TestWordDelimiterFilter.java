@@ -9,8 +9,7 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
-import org.apache.lucene.analysis.miscellaneous.WordDelimiterIterator;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
 
 /**
  *
@@ -21,7 +20,7 @@ class MyAnalyzer extends Analyzer {
     private final int wordDelimiterConfig;
 
     MyAnalyzer() {
-        wordDelimiterConfig = 
+        /*wordDelimiterConfig = 
         WordDelimiterFilter.GENERATE_WORD_PARTS +
         WordDelimiterFilter.GENERATE_NUMBER_PARTS +
         //WordDelimiterFilter.CATENATE_WORDS +
@@ -29,7 +28,15 @@ class MyAnalyzer extends Analyzer {
         WordDelimiterFilter.SPLIT_ON_NUMERICS +
         WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE +
         WordDelimiterFilter.CATENATE_ALL;        
-        //WordDelimiterFilter.PRESERVE_ORIGINAL;        
+        //WordDelimiterFilter.PRESERVE_ORIGINAL;        */
+        
+        wordDelimiterConfig = 
+        WordDelimiterGraphFilter.GENERATE_WORD_PARTS +
+        WordDelimiterGraphFilter.GENERATE_NUMBER_PARTS +
+        WordDelimiterGraphFilter.SPLIT_ON_NUMERICS +
+        WordDelimiterGraphFilter.STEM_ENGLISH_POSSESSIVE +
+        WordDelimiterGraphFilter.CATENATE_ALL;        
+
     }
 
     @Override
@@ -38,7 +45,9 @@ class MyAnalyzer extends Analyzer {
         final Tokenizer source = new WhitespaceTokenizer();
         final TokenStream filter1 = new ASCIIFoldingFilter(source);
         final TokenStream filter2 = new LowerCaseFilter(filter1);
-        final TokenStream filter3 =  new WordDelimiterFilter(filter2, 
+        /*final TokenStream filter3 =  new WordDelimiterFilter(filter2, 
+                                                 wordDelimiterConfig, null);*/
+        final TokenStream filter3 =  new WordDelimiterGraphFilter(filter2,
                                                  wordDelimiterConfig, null);
         
         return new Analyzer.TokenStreamComponents(source, filter3);

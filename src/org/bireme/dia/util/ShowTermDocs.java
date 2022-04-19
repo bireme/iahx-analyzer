@@ -136,7 +136,6 @@ public class ShowTermDocs {
                     }
                     writer.write("\n");
                 }
-                //writer.write("\n");
             }
         }
         
