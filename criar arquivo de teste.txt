@@ -1,1 +1,0 @@
- mx /bases/lilG4/lil.lil/lilacs.mst "pft=if p(v12) and p(v83) then  v2'~^'v12[1]^*'~^'v83[1]^*/ fi" now lw=0 > ~/lilacs_2_12_83.txt
