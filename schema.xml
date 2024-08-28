@@ -36,7 +36,7 @@
 		           splitWords="true"
 		           splitHifen="true"
 		           toLowerCase="true"
-		           fixSplitted="true"/>
+		           fixPrefixSuffix="true"/>
             <filter class="solr.ASCIIFoldingFilterFactory" />
             <!--filter class="org.bireme.dia.filters.PrefixSuffixFilter" /-->
 	    <filter class="solr.LengthFilterFactory" min="2" max="100" />
@@ -109,7 +109,7 @@
                            getQualifiers="true"
                            getJoinDescrQual="true"
                            getSynonyms="true"
-						   acceptOnlyPrecoded="true"
+			   acceptOnlyPrecoded="true"
                            toLowerCase="true"  />
             <filter class="solr.ASCIIFoldingFilterFactory" />
             <!--filter class="org.bireme.dia.filters.PrefixSuffixFilter" /-->
@@ -183,11 +183,12 @@
                            getJoinDescrQual="true"
                            getSynonyms="true"
                            getCategory="true"
-                           getAbbreviation="true"
+		           getAbbreviation="true"
+		           acceptOnlyPrecoded="true"
                            splitWords="true"
                            splitHifen="true"
                            toLowerCase="true"
-		                   fixPrefixSuffix="true" />
+		           fixPrefixSuffix="true" />
 	    <filter class="solr.WordDelimiterGraphFilterFactory"
                            generateWordParts="1"
                            generateNumberParts="0"

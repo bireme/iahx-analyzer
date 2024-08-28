@@ -36,7 +36,7 @@ object Tools:
 
     stream.reset()
     while stream.incrementToken() do
-      println(s"term=[${term.toString}]")
+      //println(s"term=[${term.toString}]")
       buffer += term.toString
     stream.close()
     buffer.toList

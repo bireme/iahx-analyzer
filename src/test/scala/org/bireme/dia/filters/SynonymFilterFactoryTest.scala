@@ -44,7 +44,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
       "splitWords" -> conf.splitWords.toString,
       "splitHifen" -> conf.splitHifen.toString,
       "toLowerCase" -> conf.toLowerCase.toString,
-      "fixSplitted" -> conf.fixPrefixSuffix.toString
+      "fixPrefixSuffix" -> conf.fixPrefixSuffix.toString
     )
 
   "The SynonymFilterFactory" should "only return the input text normalized, no descriptor and synonyms should be found" in :
@@ -286,7 +286,6 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
       "Ejercicio en Circuitos",
       "Exercícios em Circuitos",
     ).toSeq.sorted
-    val zip: Seq[(String, String)] = result.zip(expected)
 
     assert(areEquals(result, expected))
   //====================================================================================================================
@@ -638,7 +637,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
                                                     getDescriptor = false,
                                                     getCategory = true)
       val symFact = SynonymFilterFactory(conf2map(conf))
-      val result: Seq[String] = Tools.getTokenList(symFact.create(stream)).sorted
+      Tools.getTokenList(symFact.create(stream)).sorted
   //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and getSynonyms is set to true" in :
@@ -647,7 +646,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
                                                     getDescriptor = false,
                                                     getSynonyms = true)
       val symFact = SynonymFilterFactory(conf2map(conf))
-      val result: Seq[String] = Tools.getTokenList(symFact.create(stream)).sorted
+      Tools.getTokenList(symFact.create(stream)).sorted
   //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and splitWords is set to true" in :
@@ -656,7 +655,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
                                                     getDescriptor = false,
                                                     splitWords = true)
       val symFact = SynonymFilterFactory(conf2map(conf))
-      val result: Seq[String] = Tools.getTokenList(symFact.create(stream)).sorted
+      Tools.getTokenList(symFact.create(stream)).sorted
   //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and splitHifen is set to true" in :
@@ -665,7 +664,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
                                                     getDescriptor = false,
                                                     splitHifen = true)
       val symFact = SynonymFilterFactory(conf2map(conf))
-      val result: Seq[String] = Tools.getTokenList(symFact.create(stream)).sorted
+      Tools.getTokenList(symFact.create(stream)).sorted
   //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getQualifiers is false and getAbbreviation is set to true" in :
@@ -675,7 +674,7 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
                                                     getQualifiers = false,
                                                     getAbbreviation = true)
       val symFact = SynonymFilterFactory(conf2map(conf))
-      val result: Seq[String] = Tools.getTokenList(symFact.create(stream)).sorted
+      Tools.getTokenList(symFact.create(stream)).sorted
   //=====================================================================================================================
 
   it should "get only the qualifier /blood" in :
@@ -982,14 +981,15 @@ class SynonymFilterFactoryTest extends AnyFlatSpec:
     assert(areEquals(result, expected))
 //====================================================================================================================
 
-  it should "should return the input keys fixed 2 apagar" in :
+  it should "should return the input precoded term and its correlated" in :
     val symFact = SynonymFilterFactory(conf2map(allConf))
-    val in = "^d59585"
+    val in = "^d0003"
     stream2.close()
     stream2.setReader(StringReader(in))
 
     val result: Seq[String] = Tools.getTokenList(symFact.create(stream2)).sorted
-    val expected = Seq("page", "and", "electronic", "address", "facebook", "instagram", "twitter", "and", "youtube").sorted
+    val expected = Seq("d0003", "abatedouros", "abattoirs", "j01.576.423.200.700.100", "mataderos", "matadouros",
+      "slaughterhouses").sorted
 
     assert(areEquals(result, expected))
 //====================================================================================================================

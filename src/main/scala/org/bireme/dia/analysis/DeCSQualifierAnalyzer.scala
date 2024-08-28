@@ -14,14 +14,14 @@ class DeCSQualifierAnalyzer(indexPath: String) extends Analyzer:
   private val getQualifiers: Boolean = true // If true it will include the qualifiers field in the generated tokens
   private val getJoinDescrQual: Boolean = true // If true it will include descriptor/qualifier and descriptor/abbreviation in the generated tokens
   private val getSynonyms: Boolean = true   // If true it will include the synonyms field in the generated tokens
-  private val getCategory: Boolean = false  // If true it will include the category field in the generated tokens
+  private val getCategory: Boolean = true  // If true it will include the category field in the generated tokens
   private val getAbbreviation: Boolean = false    // If true it will include the abbreviation field in the generated tokens
   private val acceptOnlyPrecoded: Boolean = false // If true it will include descriptor and/or qualifiers if they were in the format ^dxxx^syyy
-  private val splitWords: Boolean = false   // If true it will split compound tokens (more than one word separated by spaces) and include the subtokens in the generated tokens
-  private val splitHifen: Boolean = false   // if true it will split tokens with hifens into subtokens and include them in the generated tokens
+  private val splitWords: Boolean = true   // If true it will split compound tokens (more than one word separated by spaces) and include the subtokens in the generated tokens
+  private val splitHifen: Boolean = true   // if true it will split tokens with hifens into subtokens and include them in the generated tokens
   private val toLowerCase: Boolean = true   // if true it will convert all tokens into lower case characters
-  private val fixSplitted: Boolean = false   // if true it will remove \W characters from splitted terms
-  private val fixPrefSuff: Boolean = false  // if true it will remove \W characters from prefix and suffix of tokens
+  private val fixSplitted: Boolean = true   // if true it will remove \W characters from splitted terms
+  private val fixPrefSuff: Boolean = true  // if true it will remove \W characters from prefix and suffix of tokens
 
   private val conf = DeCSSynonymsConf(indexPath = indexPath,
                                       getDescriptor = getDescriptor,

@@ -104,13 +104,14 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
         set =>
           set.foreach:
             desc =>
-              val descT = desc.trim
-              val splitSpace: Array[String] = descT.trim.split("\\s+")
-              splitSpace foreach:
-                ss =>
-                  val splitHifen: Array[String] = ss.split(" *- *")
-                  if splitHifen.length > 1 then synSet addAll splitHifen
-
+              val descT: String = desc.trim
+              val splitHifen: Array[String] = descT.split(" *- *")
+              splitHifen.foreach:
+                term =>
+                  if term.length > 1 then 
+                    synSet.add(term)
+                    term.split("\\s+").foreach(term => if term.length > 1 then synSet.add(term)) 
+              
   private def addJoinDescrQualif(qualifierDoc: Option[Document],
                                  descriptors: Option[Array[String]],
                                  synSet: mutable.Set[String]): Unit =

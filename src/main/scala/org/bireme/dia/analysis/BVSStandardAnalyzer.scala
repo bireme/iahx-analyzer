@@ -77,7 +77,7 @@ class BVSStandardAnalyzer(indexPath: String) extends Analyzer:
     val filter2: SynonymFilter = SynonymFilter(filter1, syns)
     val filter3: WordDelimiterGraphFilter = WordDelimiterGraphFilter(filter2, false, table, wordDelimiterConfig, null)
     val filter4: TokenFilter = if fixPrefSuff then PrefixSuffixFilter(ASCIIFoldingFilter(filter3)) else ASCIIFoldingFilter(filter3)
-    val filter5: LengthFilter = LengthFilter(filter4, 2, 80)
+    val filter5: LengthFilter = LengthFilter(filter4, 2, 100)
 
     TokenStreamComponents(source, filter5)
 

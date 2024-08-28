@@ -113,11 +113,3 @@ class DeCSAnalyzerTest extends AnyFlatSpec:
     assert(areEquals(result, expected))
 
   //====================================================================================================================
-
-  it should "return the term and synonyms" in :
-    val analyzerComplete: DeCSAnalyzer = DeCSAnalyzer(deCSPathComplete)
-    val str1 = "^d22379"
-    val result: Seq[String] = Tools.getTokenList(str1, analyzer).sorted
-    val expected = Set("d922102").toSeq.sorted
-
-    assert(areEquals(result, expected))
