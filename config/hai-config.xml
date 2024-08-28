@@ -1,30 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<hai-config>
-
-   <index-properties>
-		<analyzer class="org.apache.lucene.analysis.standard.StandardAnalyzer" />
-		<tunning mergeFactor="10" maxMergeDocs="20" optimize="true"/>
-	</index-properties>	
-	
-	<index-list>		<xml>			<node element="article">
-				<index name="ti" xpath="//title" type="Text" />
-				<index name="au" xpath="//author/personal" type="Text" />
-				<index name="au" xpath="//author/organization" type="Text" />				<index name="pd" xpath="//publication/date" type="StringToDate" dateFormat="yyyy/mm/dd" />				<index name="kw" xpath="//keywords" type="Keyword" />				<index name="tw" xpathSelect="//*" type="Text" ocurSep="|"/>			</node>		</xml>	</index-list>   	<queryTerm class="org.apache.lucene.search.WildcardQuery">
-		<term field="creator"/>
-       	</queryTerm>
-       	<range-query>
-                   <index field="creator" booleanInclusive="true" />
-      	 </range-query>
-   	    <query-parser>
-    	    <default-index name="tw"/>
-   	    </query-parser>
-	</search>
-	<search-result>
-		<fieldsToDisplay setHighlighter="true">						<luceneField name="score" label="score"/>
-			<luceneField name="title" label="title"/>
-			<luceneField name="subject" label="subject"/>
-			<luceneField name="creator" label="creator"/>	
-			<luceneField name="fullText" label="full text" setFragmenter="50"/>	
-		</fieldsToDisplay>
-	</search-result>	
-</hai-config>
