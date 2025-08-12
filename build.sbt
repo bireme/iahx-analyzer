@@ -2,8 +2,8 @@ name := "IahxAnalyzer"
 version := "2.0"
 organization := "org.bireme"
 
-scalaVersion := /*"3.4.2"*/ "3.5.0"
-val luceneVersion = /*"9.10.0"*/ "9.7.0"//"9.11.1"
+scalaVersion := "3.3.6" //"3.4.2" "3.5.0"
+val luceneVersion = "9.12.2" //"9.10.0" "9.7.0" "9.11.1"
 val scalaTestVersion = /*"3.2.18"*/ "3.2.19"
 //val solrjVersion = "9.6.1"
 

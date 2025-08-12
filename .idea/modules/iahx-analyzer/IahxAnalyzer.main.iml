@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="iahx-analyzer:main [file:/home/javaapps/sbt-projects/iahx-analyzer/]" external.linked.project.path="$MODULE_DIR$/../../.." external.root.project.path="$MODULE_DIR$/../../.." external.system.id="SBT" external.system.module.type="sbtSourceSet" type="JAVA_MODULE" version="4">
+  <component name="DisplayModuleName">
+    <option name="name" value="IahxAnalyzer.main" />
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_17">
+    <output url="file://$MODULE_DIR$/../../../target/scala-3.3.6/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/main/scala" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../target/scala-3.3.6/resource_managed/main" />
+    <content url="file://$MODULE_DIR$/../../../target/scala-3.3.6/src_managed/main" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="sbt: scala-sdk-3.3.6" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala3-library_3:3.3.6:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-core:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-analysis-common:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-queryparser:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-backward-codecs:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scalactic:scalactic_3:3.2.19:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.13.16:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-queries:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-sandbox:9.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.apache.lucene:lucene-facet:9.12.2:jar" level="project" />
+  </component>
+</module>
