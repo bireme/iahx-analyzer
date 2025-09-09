@@ -2,9 +2,10 @@ name := "IahxAnalyzer"
 version := "2.0"
 organization := "org.bireme"
 
-scalaVersion := "3.3.6" //"3.4.2" "3.5.0"
-val luceneVersion = "9.12.2" //"9.10.0" "9.7.0" "9.11.1"
-val scalaTestVersion = /*"3.2.18"*/ "3.2.19"
+scalaVersion := "3.3.6"
+val luceneVersion = "9.12.2"
+val scalaTestVersion = "3.2.19"
+val mongoVersion = "5.5.1"
 //val solrjVersion = "9.6.1"
 
 libraryDependencies ++= Seq(
@@ -12,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.apache.lucene" % "lucene-analysis-common" % luceneVersion,
   "org.apache.lucene" % "lucene-queryparser" % luceneVersion,
   "org.apache.lucene" % "lucene-backward-codecs" % luceneVersion,
+  "org.mongodb" % "mongodb-driver-sync" % mongoVersion,
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scalatest" %% "scalatest-flatspec" % scalaTestVersion % "test",
   //"org.apache.solr" % "solr-solrj" % solrjVersion
@@ -31,3 +33,5 @@ scalacOptions ++= Seq(          // use ++= to add to existing options
   "-Werror",
   "-deprecation"
 )
+
+assemblyJarName := "iahx-analyzer.jar"
