@@ -16,7 +16,7 @@ import scala.util.matching.Regex
  * Class that given a string, if it is a DeCS' term or qualifier it will return all other related information
  *
  * author: Heitor Barbieri strongly based in the previous java version written by Vinicius Andrade Antonio
- * date: june of 2024
+ * date: june 2024
  *
  * @param conf case class representing the configuration parameters
  */
@@ -110,7 +110,11 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
                 term =>
                   if term.length > 1 then 
                     synSet.add(term)
-                    term.split("\\s+").foreach(term => if term.length > 1 then synSet.add(term)) 
+                    term.split("\\s+").foreach:
+                      term => 
+                        if term.length > 1 then 
+                          synSet.add(term)
+                          ()
               
   private def addJoinDescrQualif(qualifierDoc: Option[Document],
                                  descriptors: Option[Array[String]],
@@ -136,7 +140,7 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
     key.trim match
       case "" => None
       case key2 =>
-        val key3: String = key2.replaceAll("^0*","") // Remove zeros a esquerda do codigo para match com indice de ID do DeCS
+        val key3: String = key2.replaceAll("^0*","") // Remove zeros à esquerda do código para match com índice de ID do DeCS
         val query: TermQuery = new TermQuery(new Term(field, key3))
         val hits: TopDocs = searcher.search(query, 1)
         val docId: Option[Int] = hits.scoreDocs.headOption.map(_.doc)

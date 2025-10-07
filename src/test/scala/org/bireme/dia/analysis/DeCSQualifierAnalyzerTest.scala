@@ -2,9 +2,6 @@ package org.bireme.dia.analysis
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-import java.text.Normalizer
-import java.text.Normalizer.Form
-
 import scala.language.postfixOps
 import org.bireme.dia.tools.*
 
@@ -12,8 +9,8 @@ class DeCSQualifierAnalyzerTest extends AnyFlatSpec:
   //private val deCSPath = "resources/decs/main"
   private val deCSPath = "resources/decsCompleto/main"
 
-  private def normalize(in: String): String =
-    Normalizer.normalize(in.toLowerCase(), Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+  /*private def normalize(in: String): String =
+    Normalizer.normalize(in.toLowerCase(), Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")*/
 
   private def areEquals(str1: Seq[String],
                         str2: Seq[String]): Boolean =

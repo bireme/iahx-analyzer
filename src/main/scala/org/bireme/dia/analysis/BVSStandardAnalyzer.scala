@@ -70,6 +70,7 @@ class BVSStandardAnalyzer(indexPath: String) extends Analyzer:
     Try:
       syns.close()
       super.close()
+    ()
 
   override protected def createComponents(fieldName: String): TokenStreamComponents =
     val source: WhitespaceTokenizer = WhitespaceTokenizer()

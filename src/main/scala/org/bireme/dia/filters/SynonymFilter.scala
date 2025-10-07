@@ -2,19 +2,17 @@ package org.bireme.dia.filters
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.lucene.analysis.{TokenFilter, TokenStream}
-import org.apache.lucene.util.AttributeSource
 import org.bireme.dia.synonyms.DeCSSynonyms
 import org.bireme.dia.tools.Tools
 
 import scala.collection.mutable
-import scala.compiletime.uninitialized
 
 class SynonymFilter(in: TokenStream,
                     syns: DeCSSynonyms) extends TokenFilter(in):   // remove \W characters from prefix and suffix of tokens
 
   private val synonymSet: mutable.Set[String] = new mutable.TreeSet[String]()
   private val termAtt = addAttribute(classOf[CharTermAttribute])
-  private var current: AttributeSource.State = uninitialized
+  //private var current: AttributeSource.State = uninitialized
 
   override def close(): Unit =
     //syns.close()

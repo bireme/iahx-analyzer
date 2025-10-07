@@ -3,7 +3,7 @@ package org.bireme.dia.analysis
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.analysis.Analyzer.TokenStreamComponents
 import org.apache.lucene.analysis.core.KeywordTokenizer
-import org.apache.lucene.analysis.miscellaneous.{ASCIIFoldingFilter, LengthFilter}
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter
 import org.bireme.dia.filters.SynonymFilter
 import org.bireme.dia.synonyms.{DeCSSynonyms, DeCSSynonymsConf}
 
@@ -44,12 +44,13 @@ class DeCSAnalyzer(indexPath: String) extends Analyzer:
     Try:
       syns.close()
       super.close()
+    ()
 
   override protected def createComponents(fieldName: String): TokenStreamComponents =
     val source = KeywordTokenizer()
     val filter1 = SynonymFilter(source, syns)
     val filter2 = ASCIIFoldingFilter(filter1)
-    val filter3 = LengthFilter(filter2, 2, 100)
+    //val filter3 = LengthFilter(filter2, 2, 100)
 
     new TokenStreamComponents(source, filter2)
 

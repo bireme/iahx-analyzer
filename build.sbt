@@ -5,7 +5,7 @@ organization := "org.bireme"
 scalaVersion := "3.3.6"
 val luceneVersion = "9.12.2"
 val scalaTestVersion = "3.2.19"
-val mongoVersion = "5.5.1"
+val mongoVersion = "5.6.0"
 //val solrjVersion = "9.6.1"
 
 libraryDependencies ++= Seq(
@@ -27,11 +27,11 @@ assembly / assemblyMergeStrategy := {
 scalacOptions ++= Seq(          // use ++= to add to existing options
   "-encoding", "utf8",          // if an option takes an arg, supply it on the same line
   "-feature",                   // then put the next option on a new line for easy editing
-  "-language:implicitConversions",
-  "-language:existentials",
   "-unchecked",
   "-Werror",
-  "-deprecation"
+  "-deprecation",
+  "-Wunused:all",
+  "-Wvalue-discard"
 )
 
 assemblyJarName := "iahx-analyzer.jar"

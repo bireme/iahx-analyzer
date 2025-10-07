@@ -43,7 +43,8 @@ class DeCSSimpleAnalyzer(indexPath: String) extends Analyzer:
     Try:
       syns.close()
       super.close()
-    
+    ()
+
   override protected def createComponents(fieldName: String): TokenStreamComponents =
     val source = KeywordTokenizer()
     val filter1 = if toLowerCase then LowerCaseFilter(ASCIIFoldingFilter(source)) else ASCIIFoldingFilter(source)

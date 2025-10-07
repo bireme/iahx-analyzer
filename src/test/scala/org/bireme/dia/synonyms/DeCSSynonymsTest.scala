@@ -475,7 +475,7 @@ class DeCSSynonymsTest extends AnyFlatSpec:
       val conf:DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
                                                    getDescriptor = false,
                                                    getCategory = true)
-      val sym: DeCSSynonyms = DeCSSynonyms(conf)
+      DeCSSynonyms(conf)
  //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and getSynonyms is set to true" in :
@@ -483,7 +483,7 @@ class DeCSSynonymsTest extends AnyFlatSpec:
       val conf:DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
                                                    getDescriptor = false,
                                                    getSynonyms = true)
-      val sym: DeCSSynonyms = DeCSSynonyms(conf)
+      DeCSSynonyms(conf)
  //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and splitWords is set to true" in :
@@ -491,7 +491,7 @@ class DeCSSynonymsTest extends AnyFlatSpec:
       val conf:DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
                                                    getDescriptor = false,
                                                    splitWords = true)
-      val sym: DeCSSynonyms = DeCSSynonyms(conf)
+      DeCSSynonyms(conf)
  //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getDescriptor is false and splitHifen is set to true" in :
@@ -499,7 +499,7 @@ class DeCSSynonymsTest extends AnyFlatSpec:
       val conf:DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
                                                    getDescriptor = false,
                                                    splitHifen = true)
-      val sym: DeCSSynonyms = DeCSSynonyms(conf)
+      DeCSSynonyms(conf)
  //=====================================================================================================================
 
   it should "throw IllegalArgumentException exception as getQualifiers is false and getAbbreviation is set to true" in :
@@ -508,7 +508,7 @@ class DeCSSynonymsTest extends AnyFlatSpec:
                                                    getDescriptor = true,
                                                    getQualifiers = false,
                                                    getAbbreviation = true)
-      val sym: DeCSSynonyms = DeCSSynonyms(conf)
+      DeCSSynonyms(conf)
  //=====================================================================================================================
 
   it should "get only the qualifier /blood" in :

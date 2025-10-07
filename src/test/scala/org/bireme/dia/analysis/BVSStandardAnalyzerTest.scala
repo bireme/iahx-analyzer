@@ -2,17 +2,16 @@ package org.bireme.dia.analysis
 
 import org.scalatest.flatspec.AnyFlatSpec
 
-import java.text.Normalizer
-import java.text.Normalizer.Form
-
 import scala.language.postfixOps
 import org.bireme.dia.tools.*
+
+import scala.collection.immutable.TreeSet
 
 class BVSStandardAnalyzerTest extends AnyFlatSpec:
   private val deCSPath = "resources/decs/main"
 
-  private def normalize(in: String): String =
-    Normalizer.normalize(in.toLowerCase(), Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+  /*private def normalize(in: String): String =
+    Normalizer.normalize(in.toLowerCase(), Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")*/
 
   private def areEquals(str1: Seq[String],
                         str2: Seq[String]): Boolean =
@@ -54,6 +53,10 @@ class BVSStandardAnalyzerTest extends AnyFlatSpec:
     val result: Seq[String] = Tools.getTokenList(str1, analyzer).sorted
     val expected = Seq("ceu", "de", "hoje", "nos", "d000003" ,"j01.576.423.200.700.100", "abattoirs", "mataderos",
       "matadouros", "abatedouros", "slaughterhouses", "esta", "azul").sorted
+
+    val resSet: TreeSet[String] = TreeSet.from(result)
+    val expSet: TreeSet[String] = TreeSet.from(expected)
+    println(s"resSet=$resSet\nexpSet=$expSet")
 
     assert(areEquals(result, expected))
   //====================================================================================================================
@@ -124,3 +127,22 @@ class BVSStandardAnalyzerTest extends AnyFlatSpec:
 
     assert(areEquals(result, expected))
 //====================================================================================================================
+
+  it should "show term/synonyms of a precoded of malaria" in :
+
+    val str1 = "^d26884"
+    val result: Seq[String] = Tools.getTokenList(str1, analyzer).sorted
+    val expected = Seq("malaria", "^d26884").sorted
+
+    assert(areEquals(result, expected))
+//====================================================================================================================
+
+  it should "xxx" in :
+
+    val str1 = "A ^D003715 está presente!"
+    val result: Seq[String] = Tools.getTokenList(str1, analyzer).sorted
+    val expected = Seq("dengue", "d003715", "esta", "presente").sorted
+
+    assert(areEquals(result, expected))
+//====================================================================================================================
+

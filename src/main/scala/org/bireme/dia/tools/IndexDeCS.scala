@@ -81,8 +81,10 @@ object IndexDeCS:
                         writer: IndexWriter): Try[Unit] =
     Try:
       val lDoc: LuceneDocument = LuceneDocument()
-      val id: String = Option(mDoc.getString("Id")).getOrElse("").trim
-      if id.nonEmpty then lDoc.add(new StringField("id", id, Field.Store.YES))
+      val id: String = Option(mDoc.getString("Mfn")).getOrElse("").trim
+      val id2: String = if id.isEmpty then id
+                        else id.toInt.toString
+      if id2.nonEmpty then lDoc.add(new StringField("id", id2, Field.Store.YES))
 
       // adiciona categorias do descritor
       Option(mDoc.get("Código Hierárquico")).foreach:
@@ -137,3 +139,4 @@ object IndexDeCS:
           if abbreviation.trim.nonEmpty then lDoc.add(new StringField("abbreviation", abbreviation, Field.Store.YES))
 
       writer.addDocument(lDoc)
+      ()
