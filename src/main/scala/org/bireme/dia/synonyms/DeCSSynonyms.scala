@@ -15,7 +15,7 @@ import scala.util.matching.Regex
 /**
  * Class that given a string, if it is a DeCS' term or qualifier it will return all other related information
  *
- * author: Heitor Barbieri strongly based in the previous java version written by Vinicius Andrade Antonio
+ * author: Heitor Barbieri This implementation is strongly based in the previous java version written by Vinicius Andrade Antonio
  * date: june 2024
  *
  * @param conf case class representing the configuration parameters
@@ -40,23 +40,33 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
 
   def getSynonyms(term: String): Set[String] =
     val termLow: String = normalize(term)
-    val synSet: mutable.Set[String] = mutable.Set[String]()
     val (descriptor, qualifier) = getDescrQualif(termLow)
     val field: Option[String] = descriptor.map(des => if des.matches("[0-9]+") then "id" else "descriptor") orElse
       qualifier.map(qual => if qual.matches("[0-9]+") then "id" else "descriptor")
     val descriptorDoc: Option[Document] = descriptor.flatMap(des => field.flatMap(fld => decsKey(des, fld)))
     val qualifierDoc: Option[Document] =
       qualifier.flatMap(d => field.flatMap(fld => decsKey(s"${if fld.equals("id") then "" else "/"}$d", fld)))
-
-    if descriptorDoc.isEmpty && qualifierDoc.isEmpty then synSet.add(term)
+    val synSet: mutable.Set[String] = if descriptorDoc.isEmpty && qualifierDoc.isEmpty then mutable.Set[String](term)
     else
       val descriptors: Option[Array[String]] = descriptorDoc.flatMap(dd => Option(dd.getValues("descriptor_full")).map(arr => arr.filter(_.nonEmpty)))
-      qualifierDoc.foreach(synSet addAll extractKeyValues(_).map(key => if key.head == '/' then key.tail else key))
-      descriptorDoc.foreach(synSet addAll extractKeyValues(_))
-      addSplitWords(descriptorDoc, synSet)
-      addSplitHifen(descriptorDoc, synSet)
-      addJoinDescrQualif(qualifierDoc,descriptors,synSet)
-      addAbbreviation(qualifierDoc, descriptors, synSet)
+      val synSetAux: mutable.Set[String] = mutable.Set[String]()
+      qualifierDoc.foreach(synSetAux addAll extractKeyValues(_))
+      descriptorDoc.foreach(synSetAux addAll extractKeyValues(_))
+      addPrecoded(descriptor, qualifier, synSetAux)
+      addSplitWords(descriptorDoc, synSetAux)
+      addSplitWords(qualifierDoc, synSetAux)
+      addSplitHifen(descriptorDoc, synSetAux)
+      addSplitHifen(qualifierDoc, synSetAux)
+      addJoinDescrQualif(qualifierDoc,descriptors,synSetAux)
+      addAbbreviation(qualifierDoc, descriptors, synSetAux)
+      addSplitComma(synSetAux)
+      synSetAux.foldLeft(mutable.Set[String]()):
+        case (nSet, key) =>
+          if key.trim.isEmpty then nSet
+          else if key.head == '/' then
+            nSet.addOne(key)
+            nSet.addOne(key.tail)
+          else nSet.addOne(key)
 
     val set1: Set[String] = if conf.toLowerCase then synSet.map(_.toLowerCase).toSet else synSet.toSet
     val set2: Set[String] = if conf.fixPrefixSuffix then set1.map(x => Tools.fixPrefixSuffix(x)) else set1
@@ -65,57 +75,85 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
     set3
 
   private def getDescrQualif(in: String): (Option[String], Option[String]) =
-    val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r                // ^d0003
-    val onlyQualPattern1: Regex  = "^\\^s(\\d+) *$".r                // ^s1234
-    val descQualPattern1: Regex  = "^\\^d(\\d+) *\\^s(\\d+) *$".r    // ^d0003^s1234 ou ^d0003  ^s1234
-    val onlyDescrPattern2: Regex = "^([^\\^/\\r]+?)/?$".r            // matadouro ou matadouro/
-    val onlyQualPattern2: Regex  = "^/(.+)$".r                       // /sangue
-    val descQualPattern2: Regex  = "^([^\\^/]+)/(.+)$".r             // matadouro/sangue
+    if conf.acceptOnlyPrecoded then
+      val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r                // ^d0003
+      val onlyQualPattern1: Regex  = "^\\^s(\\d+) *$".r                // ^s1234
+      val descQualPattern1: Regex  = "^\\^d(\\d+) *\\^s(\\d+) *$".r    // ^d0003^s1234 ou ^d0003  ^s1234
 
-    in match
-      case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
-      case onlyQualPattern1(qualifier) => if conf.getQualifiers then (None, Some(qualifier.toInt.toString)) else (None,None)
-      case descQualPattern1(descriptor,qualifier) => (if conf.getDescriptor then Some(descriptor.toInt.toString) else None,
-                                                      if conf.getQualifiers then Some(qualifier.toInt.toString) else None)
-      case onlyDescrPattern2(descriptor) => if conf.getDescriptor && !conf.acceptOnlyPrecoded then (Some(descriptor), None) else (None,None)
-      case onlyQualPattern2(qualifier) => if conf.getQualifiers && !conf.acceptOnlyPrecoded then (None, Some(qualifier)) else (None,None)
-      case descQualPattern2(descriptor,qualifier) => (if conf.getDescriptor && !conf.acceptOnlyPrecoded then Some(descriptor) else None,
-                                                      if conf.getQualifiers && !conf.acceptOnlyPrecoded then Some(qualifier) else None)
-      case _ => (None, None)
+      in match
+        case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
+        case onlyQualPattern1(qualifier) => if conf.getQualifiers then (None, Some(qualifier.toInt.toString)) else (None,None)
+        case descQualPattern1(descriptor,qualifier) => (if conf.getDescriptor then Some(descriptor.toInt.toString) else None,
+                                                        if conf.getQualifiers then Some(qualifier.toInt.toString) else None)
+        case _ => (None, None)
+    else
+      val onlyDescrPattern2: Regex = "^([^\\^/\\r]+?)/?$".r            // matadouro ou matadouro/
+      val onlyQualPattern2: Regex  = "^/(.+)$".r                       // /sangue
+      val descQualPattern2: Regex  = "^([^\\^/]+)/(.+)$".r             // matadouro/sangue
 
-  private def addSplitWords(descriptorDoc: Option[Document],
+      in match
+        case onlyDescrPattern2(descriptor) => if conf.getDescriptor then (Some(descriptor), None) else (None, None)
+        case onlyQualPattern2(qualifier) => if conf.getQualifiers then (None, Some(qualifier)) else (None, None)
+        case descQualPattern2(descriptor, qualifier) => (if conf.getDescriptor then Some(descriptor) else None,
+                                                         if conf.getQualifiers then Some(qualifier) else None)
+        case _ => (None, None)
+
+  private def addPrecoded(descriptor: Option[String],
+                          qualifier: Option[String],
+                          synSet: mutable.Set[String]): Unit =
+    if conf.acceptOnlyPrecoded then
+      descriptor.foreach:
+        des =>
+          synSet add s"d$des"
+          qualifier.foreach:
+            qual =>
+              synSet add s"^d$des^s$qual"
+              synSet add s"d${des}s$qual"
+      qualifier.foreach:
+        qual =>
+          synSet add s"s$qual"
+
+  private def addSplitWords(doc: Option[Document],
                             synSet: mutable.Set[String]): Unit =
-    if conf.splitWords then
-      val keyValues: Option[Set[String]] = descriptorDoc.map(extractKeyValues)
-      keyValues.foreach:
-        set =>
-          set.foreach:
-            desc =>
-              val splitSpace: Array[String] = desc.trim.split("\\s+")
-              if splitSpace.length > 1 then      // There is at least one space in the term and it was already included in synSet
-                splitSpace foreach:
-                  term => synSet add term
+    def cleanPrefSuf(elem: String): String =
+      val str1: String = if elem.head == '/' then elem.tail else elem
+      if str1.endsWith(",") then str1.init else str1
 
-  private def addSplitHifen(descriptorDoc: Option[Document],
+    if conf.splitWords then
+      val keyValues: Option[Set[String]] = doc.map(extractKeyValues)
+        keyValues.foreach:
+          set =>
+            set.foreach:
+              desc =>
+                val splitSpace: Array[String] = desc.trim.split("\\s+")
+                if splitSpace.length > 1 then      // There is at least one space in the term and it was already included in synSet
+                  synSet addAll splitSpace.map(cleanPrefSuf)
+
+  private def addSplitHifen(doc: Option[Document],
                             synSet: mutable.Set[String]): Unit =
     if conf.splitHifen then
-      val keyValues: Option[Set[String]] = descriptorDoc.map(extractKeyValues)
+      val keyValues: Option[Set[String]] = doc.map(extractKeyValues)
       keyValues.foreach:
         set =>
           set.foreach:
             desc =>
               val descT: String = desc.trim
-              val splitHifen: Array[String] = descT.split(" *- *")
-              splitHifen.foreach:
-                term =>
-                  if term.length > 1 then 
+              val splitHifen: Array[String] = descT.split(" *- *", 2)
+              if splitHifen.length > 1 then
+                splitHifen.foreach:
+                  term =>
                     synSet.add(term)
-                    term.split("\\s+").foreach:
-                      term => 
-                        if term.length > 1 then 
-                          synSet.add(term)
-                          ()
-              
+
+  private def addSplitComma(synSet: mutable.Set[String]): Unit =
+    val auxSet: mutable.Set[String] = mutable.Set[String]()
+    
+    synSet.foreach:
+      term =>
+        val split = term.split(" *, *", 2)
+        if split.length > 1 then auxSet addAll split
+          
+    synSet.addAll(auxSet)
+    
   private def addJoinDescrQualif(qualifierDoc: Option[Document],
                                  descriptors: Option[Array[String]],
                                  synSet: mutable.Set[String]): Unit =
@@ -132,7 +170,7 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
                               synSet: mutable.Set[String]): Unit =
     if conf.getAbbreviation && conf.getJoinDescrQual then
       val abbr: Option[String] = qualifierDoc.flatMap(_.getValues("abbreviation").headOption)
-      //abbr.foreach(synSet.add)
+      abbr.foreach(synSet.add)
       abbr.foreach(abb => descriptors.foreach(desc => synSet addAll desc.map(d => s"$d/$abb")))
 
   private def decsKey(key: String,
@@ -150,6 +188,7 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
   private def extractKeyValues(doc: Document): Set[String] =
     val keyValues: mutable.Set[String]  = mutable.Set[String]()
 
+    //Option(doc.get("id")).foreach(keyValues add _)
     Option(doc.getValues("descriptor")).foreach(keyValues addAll  _) // add authorized terms in 3 languages
     if conf. getSynonyms then Option(doc.getValues("syn")).foreach(keyValues addAll  _) // add synonyms
     if conf.getCategory then Option(doc.getValues("category")).foreach(keyValues addAll _) // add categories

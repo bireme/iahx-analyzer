@@ -10,6 +10,13 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 object Tools:
+
+  /**
+   * Ideias do Vini (20251014):
+   *   tirar quando for uma sequencia de caracteres não alfa-numericos, por ex, #$%(temefos deixando só temefos
+   *   deixar quando for um só, por exemplo "agua  ou (temefos ou final!
+   *   tirar quando o prefixo/sufixo for uma entidade html, por ex, &amp;temefos
+   */
   def fixPrefixSuffix(text: String,
                       fixPrefix: Boolean = true,
                       fixSuffix: Boolean = true): String =

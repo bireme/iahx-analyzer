@@ -5,7 +5,7 @@ organization := "org.bireme"
 scalaVersion := "3.3.6"
 val luceneVersion = "9.12.2"
 val scalaTestVersion = "3.2.19"
-val mongoVersion = "5.6.0"
+val mongoVersion = "5.6.1"
 //val solrjVersion = "9.6.1"
 
 libraryDependencies ++= Seq(

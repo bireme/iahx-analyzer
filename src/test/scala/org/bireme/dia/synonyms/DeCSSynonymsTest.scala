@@ -560,3 +560,101 @@ class DeCSSynonymsTest extends AnyFlatSpec:
     sym.close()
     assert(areEquals(result, expected))
 //====================================================================================================================
+
+  it should "get descriptors and qualifiers in the form ^d10311^s22073" in :
+    val conf: DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
+      getDescriptor = true,
+      getQualifiers = true,
+      getSynonyms = true,
+      getCategory = true,
+      getJoinDescrQual = true,
+      getAbbreviation = true,
+      splitWords = true,
+      splitHifen = true)
+    val sym: DeCSSynonyms = DeCSSynonyms(conf)
+    val result: Seq[String] = sym.getSynonyms("^d10311^s22073").toSeq.sorted
+    val expected = Set(
+      "Circuit-Based Exercise",
+      "Ejercicio en Circuitos",
+      "Exercícios em Circuitos",
+      "Circuit-Based", "Exercise", "Circuit", "Based",
+      "Ejercicio", "en", "Circuitos",
+      "Exercícios", "em", "Circuitos",
+      "blood", "sangre", "sangue",
+      "Circuit-Based Exercise/blood",
+      "Ejercicio en Circuitos/sangre",
+      "Exercícios em Circuitos/sangue",
+      "Circuit-Based Exercise/BL",
+      "Ejercicio en Circuitos/BL",
+      "Exercícios em Circuitos/BL"
+    ).toSeq.sorted
+
+    sym.close()
+    assert(areEquals(result, expected))
+  //====================================================================================================================
+
+  it should "get descriptors and qualifiers in the form ^d10311^s22020" in :
+    val conf: DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
+      getDescriptor = true,
+      getQualifiers = true,
+      getSynonyms = true,
+      getCategory = true,
+      getJoinDescrQual = true,
+      getAbbreviation = true,
+      splitWords = true,
+      splitHifen = true,
+      acceptOnlyPrecoded = true)
+    val sym: DeCSSynonyms = DeCSSynonyms(conf)
+    val result: Seq[String] = sym.getSynonyms("^d10311^s22020").toSeq.sorted
+    val expected = Set(
+      "Circuit-Based Exercise",
+      "Ejercicio en Circuitos",
+      "Exercícios em Circuitos",
+      "Circuit-Based", "Exercise", "Circuit", "Based",
+      "Ejercicio", "en", "Circuitos",
+      "Exercícios", "em", "Circuitos",
+      "blood", "sangre", "sangue",
+      "Circuit-Based Exercise/blood",
+      "Ejercicio en Circuitos/sangre",
+      "Exercícios em Circuitos/sangue",
+      "Circuit-Based Exercise/BL",
+      "Ejercicio en Circuitos/BL",
+      "Exercícios em Circuitos/BL"
+    ).toSeq.sorted
+
+    sym.close()
+    assert(areEquals(result, expected))
+
+  //====================================================================================================================
+
+  it should "get descriptors and qualifiers in the form ^d22334^s22078" in :
+    val conf: DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
+      getDescriptor = true,
+      getQualifiers = true,
+      getSynonyms = true,
+      getCategory = true,
+      getJoinDescrQual = true,
+      getAbbreviation = true,
+      splitWords = true,
+      splitHifen = true,
+      acceptOnlyPrecoded = true)
+    val sym: DeCSSynonyms = DeCSSynonyms(conf)
+    val result: Seq[String] = sym.getSynonyms("^d22334^s22078").toSeq.sorted
+    val expected = Set(
+      "Circuit-Based Exercise",
+      "Ejercicio en Circuitos",
+      "Exercícios em Circuitos",
+      "Circuit-Based", "Exercise", "Circuit", "Based",
+      "Ejercicio", "en", "Circuitos",
+      "Exercícios", "em", "Circuitos",
+      "blood", "sangre", "sangue",
+      "Circuit-Based Exercise/blood",
+      "Ejercicio en Circuitos/sangre",
+      "Exercícios em Circuitos/sangue",
+      "Circuit-Based Exercise/BL",
+      "Ejercicio en Circuitos/BL",
+      "Exercícios em Circuitos/BL"
+    ).toSeq.sorted
+
+    sym.close()
+    assert(areEquals(result, expected))

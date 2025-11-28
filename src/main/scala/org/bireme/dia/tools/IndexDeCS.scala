@@ -53,6 +53,9 @@ object IndexDeCS:
     val iwc: IndexWriterConfig = IndexWriterConfig(new SimpleKeywordAnalyzer())
     val writer: IndexWriter = IndexWriter(indexDir, iwc)
 
+    writer.deleteAll()  // Apaga TODOS os documentos do índice
+    writer.commit()     // Força a gravação das mudanças
+
     exportDocs(coll, writer) match
       case Success(_) =>
         println("Exporting finished.")
@@ -86,52 +89,60 @@ object IndexDeCS:
                         else id.toInt.toString
       if id2.nonEmpty then lDoc.add(new StringField("id", id2, Field.Store.YES))
 
-      // adiciona categorias do descritor
-      Option(mDoc.get("Código Hierárquico")).foreach:
-        case category: String =>
-          if category.trim.nonEmpty then lDoc.add(StoredField("category", category))
-        case al =>
-          val arr: mutable.Seq[String] = al.asInstanceOf[util.ArrayList[String]].asScala
-          arr.foreach(category =>
-            if category.trim.nonEmpty then lDoc.add(StoredField("category", category)))
+      // adiciona categorias do descritor/qualificador
+      Seq("Código Hierárquico", "Código Hierárquico Qualificador") foreach:
+        field =>
+          Option(mDoc.get(field)).foreach:
+            case category: String =>
+              if category.trim.nonEmpty then lDoc.add(StoredField("category", category))
+            case al =>
+              val arr: mutable.Seq[String] = al.asInstanceOf[util.ArrayList[String]].asScala
+              arr.foreach(category =>
+                if category.trim.nonEmpty then lDoc.add(StoredField("category", category)))
 
       // adiciona o descritor nos 3 idiomas
-      val descSet: mutable.Set[String] = mutable.Set[String]()
-      mDoc.keySet().asScala.filter(_.startsWith("Descritor")).foreach:
+      val descSeq: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+      //val descr: Seq[String] = mDoc.asScala.keys.filter(_.startsWith("Descritor")).toSeq
+      val descr: Seq[String] = Seq("Descritor Inglês", "Descritor Espanhol", "Descritor Português",
+        "Descritor Espanhol-Espanha", "Descritor Francês")
+
+      descr.foreach:
         name =>
           Option(mDoc.get(name)).map(_.asInstanceOf[String]).foreach:
             descriptor =>
-              if descriptor.trim.nonEmpty && !descSet.contains(descriptor) then
-                lDoc.add(TextField("descriptor", descriptor, Field.Store.YES))
-                descSet.addOne(descriptor)
+              lDoc.add(TextField("descriptor", descriptor.trim, Field.Store.YES))
+              descSeq.addOne(descriptor)
 
       // adiciona o descritor nos 3 idiomas sem tokenize
-      descSet.clear()
-      mDoc.keySet().asScala.filter(_.startsWith("Descritor")).foreach:
+      descSeq.clear()
+      descr.foreach:
         name =>
           Option(mDoc.get(name)).map(_.asInstanceOf[String]).foreach:
             descriptor =>
-              if descriptor.trim.nonEmpty && !descSet.contains(descriptor) then
-                lDoc.add(StringField("descriptor_full", descriptor, Field.Store.YES))
-                descSet.addOne(descriptor)
+              lDoc.add(StringField("descriptor_full", descriptor.trim, Field.Store.YES))
+              descSeq.addOne(descriptor)
 
       // adiciona sinonimos nos 3 idiomas
-      val synSet: mutable.Set[String] = mutable.Set[String]()
-      mDoc.keySet().asScala.filter(_.startsWith("Sinônimos")).foreach:
+      val synSeq: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+      val syn: Seq[String] = Seq("Sinônimos Inglês", "Sinônimos Espanhol", "Sinônimos Português", 
+        "Sinônimos Espanhol-Espanha", "Sinônimos Francês")
+      
+      //mDoc.asScala.keys.filter(_.startsWith("Sinônimos")).foreach:
+      syn.foreach:
         name =>
           Option(mDoc.get(name)).foreach:
             case syn: String =>
-              if syn.trim.nonEmpty && !synSet.contains(syn) then
+              if syn.trim.nonEmpty && !synSeq.contains(syn) then
                 lDoc.add(StoredField("syn", syn))
-                synSet.addOne(syn)
+                synSeq.addOne(syn)
 
             case al =>
               val arr: mutable.Seq[String] = al.asInstanceOf[util.ArrayList[String]].asScala
               arr.foreach:
                 syn =>
-                  if syn.trim.nonEmpty && !synSet.contains(syn) then
+                  if syn.trim.nonEmpty && !synSeq.contains(syn) then
                     lDoc.add(StoredField("syn", syn))
-                    synSet.addOne(syn)
+                    synSeq.addOne(syn)
 
       // adiciona abreviacao dos qualificadores (diagnostico = di)
       Option(mDoc.get("Abreviação")).foreach:

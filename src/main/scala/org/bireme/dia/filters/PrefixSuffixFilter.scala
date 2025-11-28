@@ -7,7 +7,7 @@ import org.bireme.dia.tools.Tools
 class PrefixSuffixFilter(in: TokenStream,
                          fixPrefix: Boolean = true,
                          fixSuffix: Boolean = true) extends TokenFilter(in):
-  private val termAtt = addAttribute(classOf[CharTermAttribute])
+  private val termAtt: CharTermAttribute = addAttribute(classOf[CharTermAttribute])
 
   override def close(): Unit =
     //syns.close()

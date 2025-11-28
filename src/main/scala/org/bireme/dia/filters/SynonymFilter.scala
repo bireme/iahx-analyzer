@@ -11,7 +11,7 @@ class SynonymFilter(in: TokenStream,
                     syns: DeCSSynonyms) extends TokenFilter(in):   // remove \W characters from prefix and suffix of tokens
 
   private val synonymSet: mutable.Set[String] = new mutable.TreeSet[String]()
-  private val termAtt = addAttribute(classOf[CharTermAttribute])
+  private val termAtt: CharTermAttribute = addAttribute(classOf[CharTermAttribute])
   //private var current: AttributeSource.State = uninitialized
 
   override def close(): Unit =
