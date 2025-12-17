@@ -658,3 +658,74 @@ class DeCSSynonymsTest extends AnyFlatSpec:
 
     sym.close()
     assert(areEquals(result, expected))
+
+  //====================================================================================================================
+
+  it should "get descriptors and qualifiers in the form ^d059585" in :
+    val conf: DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
+      getDescriptor = true,
+      getQualifiers = true,
+      getSynonyms = true,
+      getCategory = true,
+      getJoinDescrQual = true,
+      getAbbreviation = true,
+      splitWords = true,
+      splitHifen = true,
+      acceptOnlyPrecoded = false)
+    val sym: DeCSSynonyms = DeCSSynonyms(conf)
+    val result: Seq[String] = sym.getSynonyms("^d059585").toSeq.sorted
+    val expected = Set(
+      "Circuit-Based Exercise",
+      "Ejercicio en Circuitos",
+      "Exercícios em Circuitos",
+      "Circuit-Based", "Exercise", "Circuit", "Based",
+      "Ejercicio", "en", "Circuitos",
+      "Exercícios", "em", "Circuitos",
+      "blood", "sangre", "sangue",
+      "Circuit-Based Exercise/blood",
+      "Ejercicio en Circuitos/sangre",
+      "Exercícios em Circuitos/sangue",
+      "Circuit-Based Exercise/BL",
+      "Ejercicio en Circuitos/BL",
+      "Exercícios em Circuitos/BL"
+    ).toSeq.sorted
+
+    sym.close()
+    assert(areEquals(result, expected))
+
+
+  //====================================================================================================================
+
+  it should "get descriptors and qualifiers in the form COVID-19" in :
+    val conf: DeCSSynonymsConf = DeCSSynonymsConf(indexPath = deCSPath,
+      getDescriptor = true,
+      getQualifiers = true,
+      getSynonyms = true,
+      getCategory = true,
+      getJoinDescrQual = true,
+      getAbbreviation = true,
+      acceptOnlyPrecoded= true,
+      splitWords = true,
+      splitHifen = true,
+      toLowerCase= true)
+    val sym: DeCSSynonyms = DeCSSynonyms(conf)
+    val result: Seq[String] = sym.getSynonyms("COVID-19").toSeq.sorted
+    val expected = Set(
+      "Circuit-Based Exercise",
+      "Ejercicio en Circuitos",
+      "Exercícios em Circuitos",
+      "Circuit-Based", "Exercise", "Circuit", "Based",
+      "Ejercicio", "en", "Circuitos",
+      "Exercícios", "em", "Circuitos",
+      "blood", "sangre", "sangue",
+      "Circuit-Based Exercise/blood",
+      "Ejercicio en Circuitos/sangre",
+      "Exercícios em Circuitos/sangue",
+      "Circuit-Based Exercise/BL",
+      "Ejercicio en Circuitos/BL",
+      "Exercícios em Circuitos/BL"
+    ).toSeq.sorted
+
+    sym.close()
+    assert(areEquals(result, expected))
+

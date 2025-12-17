@@ -75,11 +75,11 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
     set3
 
   private def getDescrQualif(in: String): (Option[String], Option[String]) =
-    if conf.acceptOnlyPrecoded then
-      val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r                // ^d0003
-      val onlyQualPattern1: Regex  = "^\\^s(\\d+) *$".r                // ^s1234
-      val descQualPattern1: Regex  = "^\\^d(\\d+) *\\^s(\\d+) *$".r    // ^d0003^s1234 ou ^d0003  ^s1234
+    val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r                // ^d0003
+    val onlyQualPattern1: Regex  = "^\\^s(\\d+) *$".r                // ^s1234
+    val descQualPattern1: Regex  = "^\\^d(\\d+) *\\^s(\\d+) *$".r    // ^d0003^s1234 ou ^d0003  ^s1234
 
+    if conf.acceptOnlyPrecoded then
       in match
         case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
         case onlyQualPattern1(qualifier) => if conf.getQualifiers then (None, Some(qualifier.toInt.toString)) else (None,None)
@@ -92,6 +92,10 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
       val descQualPattern2: Regex  = "^([^\\^/]+)/(.+)$".r             // matadouro/sangue
 
       in match
+        case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
+        case onlyQualPattern1(qualifier) => if conf.getQualifiers then (None, Some(qualifier.toInt.toString)) else (None,None)
+        case descQualPattern1(descriptor,qualifier) => (if conf.getDescriptor then Some(descriptor.toInt.toString) else None,
+          if conf.getQualifiers then Some(qualifier.toInt.toString) else None)
         case onlyDescrPattern2(descriptor) => if conf.getDescriptor then (Some(descriptor), None) else (None, None)
         case onlyQualPattern2(qualifier) => if conf.getQualifiers then (None, Some(qualifier)) else (None, None)
         case descQualPattern2(descriptor, qualifier) => (if conf.getDescriptor then Some(descriptor) else None,
