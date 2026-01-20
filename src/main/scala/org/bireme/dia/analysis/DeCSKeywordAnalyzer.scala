@@ -19,6 +19,7 @@ class DeCSKeywordAnalyzer(indexPath: String) extends Analyzer:
   private val acceptOnlyPrecoded: Boolean = false // If true it will include descriptor and/or qualifiers if they were in the format ^dxxx^syyy
   private val splitWords: Boolean = false    // If true it will split compound tokens (more than one word separated by spaces) and include the subtokens in the generated tokens
   private val splitHifen: Boolean = false   // if true it will split tokens with hifens into subtokens and include them in the generated tokens
+  private val splitComma: Boolean = false   // if true it will split tokens with commas into subtokens and include them in the generated tokens
   private val toLowerCase: Boolean = true   // if true it will convert all tokens into lower case characters
   private val fixSplitted: Boolean = false   // if true it will remove \W characters from splitted terms
   private val fixPrefSuff: Boolean = false  // if true it will remove \W characters from prefix and suffix of tokens
@@ -33,6 +34,7 @@ class DeCSKeywordAnalyzer(indexPath: String) extends Analyzer:
                                       acceptOnlyPrecoded = acceptOnlyPrecoded,
                                       splitWords = splitWords,
                                       splitHifen = splitHifen,
+                                      splitComma = splitComma,
                                       toLowerCase = toLowerCase,
                                       fixPrefixSuffix = fixSplitted)
   private val syns: DeCSSynonyms = DeCSSynonyms(conf)
@@ -69,6 +71,7 @@ class DeCSKeywordAnalyzer(indexPath: String) extends Analyzer:
       s"\n\tacceptOnlyPrecoded=$acceptOnlyPrecoded\t(include decs' abbreviation fields)" +
       s"\n\tsplitWords=$splitWords\t\t(split terms with spaces and include them)" +
       s"\n\tsplitHifen=$splitHifen\t\t(split terms with hifen and include them)" +
+      s"\n\tsplitComma=$splitComma\t\t(split terms with commas and include them)" +
       s"\n\ttoLowerCase=$toLowerCase\t(convert the generated tokens into lower case)" +
       s"\n\tfixPrefSuff=$fixPrefSuff\t(remove \\W characters from prefix and suffix of tokens)" +
       "\nfilters:" +

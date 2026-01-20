@@ -11,6 +11,7 @@ package org.bireme.dia.synonyms
  * @param acceptOnlyPrecoded if true, it will process the input string only if it is in the '^d1234' format (precoded terms/qualifiers)
  * @param splitWords if true, it will split the term and/or qualifier string in its spaces and add each part to the result
  * @param splitHifen if true, it will split the term and/or qualifier string in its hifen characters and add each part to the result
+ * @param splitComma if true, it will split the term and/or qualifier string on commas and add each part to the result
  * @param toLowerCase if true, it will convert all the result characters into lower case
  * @param fixPrefixSuffix if true, it will remove from prefix and suffix characters that are not letters or digits. It requires the flag splitWords and/or splitHifen to be true
  */
@@ -25,6 +26,7 @@ case class DeCSSynonymsConf(
                              acceptOnlyPrecoded: Boolean = false,
                              splitWords: Boolean = false,
                              splitHifen: Boolean = false,
+                             splitComma: Boolean = false,
                              toLowerCase: Boolean = false,
                              fixPrefixSuffix: Boolean = false
                            )

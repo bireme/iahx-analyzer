@@ -59,7 +59,7 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
       addSplitHifen(qualifierDoc, synSetAux)
       addJoinDescrQualif(qualifierDoc,descriptors,synSetAux)
       addAbbreviation(qualifierDoc, descriptors, synSetAux)
-      addSplitComma(synSetAux)
+      if conf.splitComma then addSplitComma(synSetAux)
       synSetAux.foldLeft(mutable.Set[String]()):
         case (nSet, key) =>
           if key.trim.isEmpty then nSet

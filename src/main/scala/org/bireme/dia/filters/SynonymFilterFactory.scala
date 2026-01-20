@@ -20,6 +20,7 @@ class SynonymFilterFactory(params: java.util.Map[String,String]) extends TokenFi
     acceptOnlyPrecoded = parameters.getOrElse("acceptOnlyPrecoded", "false").toBoolean,
     splitWords = parameters.getOrElse("splitWords", "false").toBoolean,
     splitHifen = parameters.getOrElse("splitHifen", "false").toBoolean,
+    splitComma = parameters.getOrElse("splitComma", "false").toBoolean,
     toLowerCase = parameters.getOrElse("toLowerCase", "false").toBoolean,
     fixPrefixSuffix = parameters.getOrElse("fixPrefixSuffix", "false").toBoolean
   )
