@@ -59,7 +59,7 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
       addSplitHifen(qualifierDoc, synSetAux)
       addJoinDescrQualif(qualifierDoc,descriptors,synSetAux)
       addAbbreviation(qualifierDoc, descriptors, synSetAux)
-      if conf.splitComma then addSplitComma(synSetAux)
+      addSplitComma(synSetAux)
       synSetAux.foldLeft(mutable.Set[String]()):
         case (nSet, key) =>
           if key.trim.isEmpty then nSet
@@ -194,6 +194,6 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
 
     //Option(doc.get("id")).foreach(keyValues add _)
     Option(doc.getValues("descriptor")).foreach(keyValues addAll  _) // add authorized terms in 3 languages
-    if conf. getSynonyms then Option(doc.getValues("syn")).foreach(keyValues addAll  _) // add synonyms
+    if conf.getSynonyms then Option(doc.getValues("syn")).foreach(keyValues addAll  _) // add synonyms
     if conf.getCategory then Option(doc.getValues("category")).foreach(keyValues addAll _) // add categories
     keyValues.toSet
