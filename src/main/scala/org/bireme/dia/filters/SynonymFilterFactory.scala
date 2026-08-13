@@ -24,7 +24,8 @@ class SynonymFilterFactory(params: java.util.Map[String,String]) extends TokenFi
     toLowerCase = parameters.getOrElse("toLowerCase", "false").toBoolean,
     fixPrefixSuffix = parameters.getOrElse("fixPrefixSuffix", "false").toBoolean
   )
+  private lazy val synonyms: DeCSSynonyms = DeCSSynonyms(conf)
 
-  override def create(in: TokenStream): TokenStream = SynonymFilter(in, DeCSSynonyms(conf))
+  override def create(in: TokenStream): TokenStream = SynonymFilter(in, synonyms)
 
   override def normalize(input: TokenStream): TokenStream = super.normalize(input)

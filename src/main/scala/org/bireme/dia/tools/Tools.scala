@@ -6,7 +6,6 @@ import org.apache.lucene.util.BytesRef
 import org.bireme.dia.analysis.BVSStandardAnalyzer
 
 import java.io.StringReader
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 object Tools:
@@ -20,19 +19,12 @@ object Tools:
   def fixPrefixSuffix(text: String,
                       fixPrefix: Boolean = true,
                       fixSuffix: Boolean = true): String =
-    def trimEnd(str: String,
-                func: Char => Boolean): String =
-      @tailrec
-      def helper(str: String): String =
-        if (str.isEmpty || func(str.last)) str
-        else helper(str.init)
-
-      helper(str)
-
     val out1: String = if fixPrefix then text.dropWhile(ch => !Character.isLetterOrDigit(ch)) else text
-    val out2: String = if fixSuffix then trimEnd(out1, Character.isLetterOrDigit) else out1
-
-    out2
+    if fixSuffix then
+      var end: Int = out1.length
+      while end > 0 && !Character.isLetterOrDigit(out1.charAt(end - 1)) do end -= 1
+      out1.substring(0, end)
+    else out1
 
   def getTokenList(text: String,
                    analyzer: Analyzer): List[String] = getTokenList(analyzer.tokenStream("default", text))
@@ -89,4 +81,3 @@ object Tools:
     println(text)
     println(rule * 10)
     displayTokensWithFullDetails(analyzer,text)
-

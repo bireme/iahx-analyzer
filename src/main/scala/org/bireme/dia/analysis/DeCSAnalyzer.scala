@@ -40,6 +40,7 @@ class DeCSAnalyzer(indexPath: String) extends Analyzer:
 
   def this() = this("resources/decs/main")
 
+  @scala.annotation.nowarn("msg=unused explicit parameter")
   def this(params: java.util.Map[String,String]) = this("")
   
   override def close(): Unit =

@@ -14,7 +14,7 @@ package org.bireme.dia.synonyms
  * @param splitComma if true, it will split the term and/or qualifier string on commas and add each part to the result
  * @param toLowerCase if true, it will convert all the result characters into lower case
  * @param fixPrefixSuffix if true, it will remove from prefix and suffix characters that are not letters or digits. It requires the flag splitWords and/or splitHifen to be true
- */
+*/
 case class DeCSSynonymsConf(
                              indexPath: String,
                              getDescriptor: Boolean = false,

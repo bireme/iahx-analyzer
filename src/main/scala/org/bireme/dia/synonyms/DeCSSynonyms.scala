@@ -4,11 +4,13 @@ import org.apache.lucene.document.Document
 import org.apache.lucene.index.{DirectoryReader, Term}
 import org.apache.lucene.search.{IndexSearcher, TermQuery, TopDocs}
 import org.apache.lucene.store.MMapDirectory
+import org.apache.lucene.util.IOUtils
 import org.bireme.dia.tools.Tools
 
 import java.io.File
 import java.text.Normalizer
 import java.text.Normalizer.Form
+import java.util.regex.Pattern
 import scala.collection.mutable
 import scala.util.matching.Regex
 
@@ -32,11 +34,18 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
   private val ramDir: MMapDirectory = MMapDirectory(indexDir.toPath)
   private val reader: DirectoryReader = DirectoryReader.open(ramDir)
   private val searcher: IndexSearcher = IndexSearcher(reader)
+  private val combiningDiacriticalMarks: Pattern = Pattern.compile("[\\p{InCombiningDiacriticalMarks}]")
+  private val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r
+  private val onlyQualPattern1: Regex = "^\\^s(\\d+) *$".r
+  private val descQualPattern1: Regex = "^\\^d(\\d+) *\\^s(\\d+) *$".r
+  private val onlyDescrPattern2: Regex = "^([^\\^/\\r]+?)/?$".r
+  private val onlyQualPattern2: Regex = "^/(.+)$".r
+  private val descQualPattern2: Regex = "^([^\\^/]+)/(.+)$".r
 
-  def close(): Unit = reader.close()
+  def close(): Unit = IOUtils.close(reader, ramDir)
 
   private def normalize(in: String): String =
-    Normalizer.normalize(in.trim.toLowerCase(), Form.NFD).replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+    combiningDiacriticalMarks.matcher(Normalizer.normalize(in.trim.toLowerCase(), Form.NFD)).replaceAll("")
 
   def getSynonyms(term: String): Set[String] =
     val termLow: String = normalize(term)
@@ -59,26 +68,22 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
       addSplitHifen(qualifierDoc, synSetAux)
       addJoinDescrQualif(qualifierDoc,descriptors,synSetAux)
       addAbbreviation(qualifierDoc, descriptors, synSetAux)
-      addSplitComma(synSetAux)
+      if conf.splitComma then addSplitComma(synSetAux)
       synSetAux.foldLeft(mutable.Set[String]()):
         case (nSet, key) =>
           if key.trim.isEmpty then nSet
           else if key.head == '/' then
-            nSet.addOne(key)
+            //nSet.addOne(key)
             nSet.addOne(key.tail)
           else nSet.addOne(key)
 
     val set1: Set[String] = if conf.toLowerCase then synSet.map(_.toLowerCase).toSet else synSet.toSet
     val set2: Set[String] = if conf.fixPrefixSuffix then set1.map(x => Tools.fixPrefixSuffix(x)) else set1
     val set3: Set[String] = set2.filter(_.nonEmpty)
-    
+
     set3
 
   private def getDescrQualif(in: String): (Option[String], Option[String]) =
-    val onlyDescrPattern1: Regex = "^\\^d(\\d+) *$".r                // ^d0003
-    val onlyQualPattern1: Regex  = "^\\^s(\\d+) *$".r                // ^s1234
-    val descQualPattern1: Regex  = "^\\^d(\\d+) *\\^s(\\d+) *$".r    // ^d0003^s1234 ou ^d0003  ^s1234
-
     if conf.acceptOnlyPrecoded then
       in match
         case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
@@ -87,10 +92,6 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
                                                         if conf.getQualifiers then Some(qualifier.toInt.toString) else None)
         case _ => (None, None)
     else
-      val onlyDescrPattern2: Regex = "^([^\\^/\\r]+?)/?$".r            // matadouro ou matadouro/
-      val onlyQualPattern2: Regex  = "^/(.+)$".r                       // /sangue
-      val descQualPattern2: Regex  = "^([^\\^/]+)/(.+)$".r             // matadouro/sangue
-
       in match
         case onlyDescrPattern1(descriptor) => if conf.getDescriptor then (Some(descriptor.toInt.toString), None) else (None,None)
         case onlyQualPattern1(qualifier) => if conf.getQualifiers then (None, Some(qualifier.toInt.toString)) else (None,None)
@@ -150,14 +151,14 @@ class DeCSSynonyms(val conf: DeCSSynonymsConf):
 
   private def addSplitComma(synSet: mutable.Set[String]): Unit =
     val auxSet: mutable.Set[String] = mutable.Set[String]()
-    
+
     synSet.foreach:
       term =>
         val split = term.split(" *, *", 2)
         if split.length > 1 then auxSet addAll split
-          
+
     synSet.addAll(auxSet)
-    
+
   private def addJoinDescrQualif(qualifierDoc: Option[Document],
                                  descriptors: Option[Array[String]],
                                  synSet: mutable.Set[String]): Unit =

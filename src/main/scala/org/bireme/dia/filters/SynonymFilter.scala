@@ -26,6 +26,10 @@ class SynonymFilter(in: TokenStream,
         val currentTerm3: String = if syns.conf.fixPrefixSuffix then Tools.fixPrefixSuffix(currentTerm2) else currentTerm2
 
         if currentTerm3.isEmpty then incrementToken()
+        else if !shouldExpand(currentTerm) then
+          termAtt.setEmpty()
+          termAtt.append(currentTerm3)
+          true
         else
           synonymSet.add(currentTerm3)
           addAliasesToSet(currentTerm)
@@ -46,8 +50,12 @@ class SynonymFilter(in: TokenStream,
       //posIncrAtt.setPositionIncrement(0)
       true
 
-  private def addAliasesToSet(currentTerm: String): Boolean =
+  private def shouldExpand(currentTerm: String): Boolean =
+    !syns.conf.acceptOnlyPrecoded ||
+      currentTerm.regionMatches(true, 0, "^d", 0, 2) ||
+      currentTerm.regionMatches(true, 0, "^s", 0, 2)
+
+  private def addAliasesToSet(currentTerm: String): Unit =
     val synonyms: Set[String] = syns.getSynonyms(currentTerm)
 
     synonyms.foreach(elem => synonymSet.add(elem.trim))
-    synonyms.isEmpty
